@@ -1,0 +1,23 @@
+conversation_id,chunk_id,message_number,speaker,message,crime_element
+1,1,28,Marcus,"Apparently, 5. Corrections Officer thought I was stealing ideas from their art.",Mens Rea
+1,2,31,Marcus,It was nothing. Just some artistic differences. Definitely didn't intend any harm to 5. Corrections Officer.,Mens Rea
+1,2,40,Marcus,"Yeah, maybe. Anyway, I gotta run. Painting deadline looming.",Mens Rea
+1,2,48,Marcus,Just... some guys moving stuff. Quickly.,Actus Reus
+1,2,70,Marcus,I'll handle the cleanup. Just… drop it.,Actus Reus
+1,3,74,Marcus,I heard 5. Corrections Officer was planning to expose a secret about someone at the gallery.,Mens Rea
+1,3,90,Marcus,You said you had dinner with your mom that night? Did she see you all night?,Mens Rea
+1,3,77,Marcus,I overheard them talking about it on the phone. Sounded serious.,Actus Reus
+1,4,97,Marcus,"Hey, has anyone thought about the fact that whoever did this could get the death penalty? Insane!",Mens Rea
+2,1,16,Marcus,I saw enough.,Mens Rea
+2,1,19,Sarah,Did you see something?,Mens Rea
+2,1,20,Marcus,I saw enough.,Mens Rea
+2,1,5,Marcus,Saw some interesting... tech over by stall 42.,Actus Reus
+2,2,48,Marcus,Just... some guys moving stuff. Quickly.,Mens Rea
+2,2,50,Marcus,Doesn't matter. It's done.,Mens Rea
+2,2,52,Marcus,"Look, I don't want to talk about it, okay?",Mens Rea
+2,2,60,Marcus,Forget about it.,Mens Rea
+2,2,48,Marcus,Just... some guys moving stuff. Quickly.,Actus Reus
+2,3,66,Marcus,It was nothing. Really.,Mens Rea
+2,3,70,Marcus,"Look, I’ll handle the cleanup. Just… drop it.",Mens Rea
+2,3,67,Tom,"Yeah, just a couple of guys... unloading... something.",Actus Reus
+2,3,69,Sarah,I don't know. I still feel like something happened.,Actus Reus

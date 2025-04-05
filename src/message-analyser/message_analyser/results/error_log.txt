@@ -1,0 +1,18 @@
+Error: Could not process file: [Errno 2] No such file or directory: '[conversations_file]'
+Timestamp: 2025-03-30 21:03:53
+
+Stack trace:
+Traceback (most recent call last):
+  File "C:\Users\jaiso\Documents\University\Semester VIII\CS596E\Message-Analyser\scripts\api\server.py", line 258, in analyze_conversations
+    shutil.copyfile(file_input.path, temp_path)
+  File "C:\Users\jaiso\AppData\Local\Programs\Python\Python312\Lib\shutil.py", line 260, in copyfile
+    with open(src, 'rb') as fsrc:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '[conversations_file]'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\jaiso\Documents\University\Semester VIII\CS596E\Message-Analyser\scripts\api\server.py", line 284, in analyze_conversations
+    raise ValueError(f"Could not process file: {str(e)}")
+ValueError: Could not process file: [Errno 2] No such file or directory: '[conversations_file]'

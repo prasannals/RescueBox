@@ -1,0 +1,15 @@
+Extroversion
+Introversion
+Agreeableness
+Conscientiousness
+Neuroticism
+Openness
+Optimism
+Pessimism
+Impulsivity
+Patience
+Humility
+Courage
+Resilience
+Empathy
+Creativity

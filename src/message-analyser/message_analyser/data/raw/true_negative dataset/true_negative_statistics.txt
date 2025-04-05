@@ -1,0 +1,11 @@
+=== True Negative Generation Statistics ===
+Total conversations generated: 200
+Valid True Negative conversations: 196 (98.00%)
+
+Validation Category Statistics:
+- format_ok: 200 (100.00%)
+- realistic: 200 (100.00%)
+- no_explicit_crime: 200 (100.00%)
+- no_implicit_crime: 197 (98.50%)
+- no_violence: 198 (99.00%)
+- no_illegal_activities: 200 (100.00%)

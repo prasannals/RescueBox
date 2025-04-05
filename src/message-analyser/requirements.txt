@@ -1,0 +1,10 @@
+Flask==3.1.0
+flask_ml==0.2.5
+huggingface_hub==0.29.3
+numpy==1.26.4
+ollama==0.4.7
+pandas==2.2.3
+scikit_learn==1.6.1
+torch==2.6.0
+transformers==4.50.3
+onnxruntime==1.16.0

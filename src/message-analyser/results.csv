@@ -1,0 +1,427 @@
+id,conversation,label,elements_of_crime,generated_by_gemma_onnx
+1,"[Message 1] Chloe: ""Hey Liam, did you hear about what happened at the Art Gallery?""
+[Message 2] Liam: ""Yeah, crazy. Heard it was someone named 5.  Corrections Officer. Awful.""
+[Message 3] Marcus: ""Terrible news. My heart goes out to their family.""
+[Message 4] Chloe: ""I know! I was just there yesterday looking at paintings.""
+[Message 5] Liam: ""We were all there, last week. What a waste.""
+[Message 6] Marcus: ""Speaking of art, Chloe, did you finish that commission for Mrs. Davison?""
+[Message 7] Chloe: ""Almost! Just need to put the final touches on it. You going to the farmer's market this weekend?""
+[Message 8] Liam: ""Probably not. Got some stuff to catch up on around the house.""
+[Message 9] Marcus: ""Same here. Maybe next week.""
+[Message 10] Chloe: ""Did anyone know 5.  Corrections Officer well?""
+[Message 11] Liam: ""Not really. Just saw them around. They were quiet.""
+[Message 12] Marcus: ""I knew them a bit better, through the art circle. Always seemed creative. Sad.""
+[Message 13] Chloe: ""So sad. The police are investigating everyone who was at the gallery recently, right?""
+[Message 14] Liam: ""Yeah, they interviewed me yesterday. Just routine, I guess.""
+[Message 15] Marcus: ""Me too. Asked about my whereabouts Late Evening.""
+[Message 16] Chloe: ""Late Evening? That's when it happened?""
+[Message 17] Liam: ""Apparently.""
+[Message 18] Marcus: ""I was home, watching TV. Alone.""
+[Message 19] Chloe: ""I was at Sarah's birthday dinner. Lots of witnesses.""
+[Message 20] Liam: ""Lucky you.""
+[Message 21] Chloe: ""Guys, this is freaking me out. What if they never find who did it?""
+[Message 22] Marcus: ""They will. The police here are pretty good.""
+[Message 23] Liam: ""Hope so. Justice for 5.  Corrections Officer.""
+[Message 24] Chloe: ""Amen to that. What did the police ask you, Liam?""
+[Message 25] Liam: ""Just the usual. Where I was, if I knew 5.  Corrections Officer, etc. Nothing exciting.""
+[Message 26] Marcus: ""Same here. They seemed interested in my connection to 5.  Corrections Officer’s work.""
+[Message 27] Chloe: ""Why?""
+[Message 28] Marcus: ""Apparently, 5.  Corrections Officer thought I was stealing ideas from their art.""
+[Message 29] Liam: ""Seriously? Drama.""
+[Message 30] Chloe: ""Wow, I didn't know that.""
+[Message 31] Marcus: ""It was nothing. Just some artistic differences. Definitely didn't intend any harm to 5.  Corrections Officer.""
+[Message 32] Liam: ""Still, I'd be careful. The police might see that as a motive.""
+[Message 33] Marcus: ""I know, I know. It's just... frustrating. This whole thing is.""
+[Message 34] Chloe: ""Frustrating is an understatement. Scary is more like it. Has anyone talked to Kai?""
+[Message 35] Liam: ""Kai? Why would we talk to Kai?""
+[Message 36] Chloe: ""I saw Kai at the art gallery Late Evening, talking to 5.  Corrections Officer. He looked angry.""
+[Message 37] Marcus: ""Oh really? I didn't see that.""
+[Message 38] Liam: ""Me neither. Kai always has a temper, though.""
+[Message 39] Chloe: ""Maybe the police should talk to him.""
+[Message 40] Marcus: ""Yeah, maybe. Anyway, I gotta run. Painting deadline looming. Talk later.""
+[Message 41] Liam: ""Later, Marcus.""
+[Message 42] Chloe: ""Bye, Marcus.""
+[Message 43] Chloe: ""Liam, are you sure you didn't see Kai?""
+[Message 44] Liam: ""Positive. I left the gallery way before Late Evening. Had dinner with my mom.""
+[Message 45] Chloe: ""Okay. Just seems weird he wasn't mentioned yet.""
+[Message 46] Liam: ""He's probably just laying low. Doesn't want to get involved.""
+[Message 47] Chloe: ""Maybe. I’m going to sleep now. Goodnight.""
+[Message 48] Liam: ""Night.""
+[Message 49] Marcus: ""Hey, guys, sorry I disappeared. Something came up.""
+[Message 50] Chloe: ""No worries. Anything serious?""
+[Message 51] Marcus: ""Nah, just a family thing. Back to painting now. This deadline is killing me.""
+[Message 52] Liam: ""Good luck with that. Still thinking about 5.  Corrections Officer. They were so young.""
+[Message 53] Chloe: ""I know, it's just... senseless.""
+[Message 54] Marcus: ""Absolutely. A real tragedy.""
+[Message 55] Liam: ""Hey, Chloe, did you ever find that Strangulation with a rope you were looking for for your macrame project?""
+[Message 56] Chloe: ""Yeah, I did, thanks! Found a great one at the craft store. Why?""
+[Message 57] Liam: ""No reason. Just remembered you mentioning it.""
+[Message 58] Chloe: ""Odd thing to remember during this chaos.""
+[Message 59] Marcus: ""He’s probably just trying to keep things light.""
+[Message 60] Liam: ""Exactly. I was trying to lighten the mood. Seriously, though, what if the police suspect one of us?""
+[Message 61] Chloe: ""Don't even say that! We're all friends here.""
+[Message 62] Marcus: ""Yeah, Liam, that's not cool. We’re all in shock.""
+[Message 63] Liam: ""Sorry, sorry. Just paranoid, I guess.""
+[Message 64] Chloe: ""I get it. Me too.""
+[Message 65] Marcus: ""Anyone hear anything new from the police?""
+[Message 66] Liam: ""Nothing. Still quiet on my end.""
+[Message 67] Chloe: ""Same here. I did see Kai downtown today. He looked really nervous.""
+[Message 68] Marcus: ""Hmm. Interesting.""
+[Message 69] Liam: ""Maybe you should tell the police that, Chloe.""
+[Message 70] Chloe: ""I will if they ask. Don't want to jump to conclusions.""
+[Message 71] Marcus: ""Good call. Let them do their job.""
+[Message 72] Liam: ""True. I wonder if 5.  Corrections Officer had any enemies. Maybe someone from their workplace?""
+[Message 73] Chloe: ""Possible. Seems like a dangerous job.""
+[Message 74] Marcus: ""I don’t know. I heard 5.  Corrections Officer was planning to expose a secret about someone at the gallery.""
+[Message 75] Chloe: ""Whoa. That changes things.""
+[Message 76] Liam: ""Now THAT'S a motive. Who would they expose?""
+[Message 77] Marcus: ""I don't know. But I overheard them talking about it on the phone. Sounded serious.""
+[Message 78] Chloe: ""Maybe that's what Kai was angry about Late Evening? He knew?""
+[Message 79] Liam: ""Possible. Or maybe Marcus is just trying to shift the blame since he and 5.  Corrections Officer argued about art.""
+[Message 80] Marcus: ""Hey! That’s uncalled for. I would never…""
+[Message 81] Chloe: ""Okay, guys, let's not turn on each other. This is exactly what the police want.""
+[Message 82] Liam: ""You're right. Sorry, Marcus. Just stressed.""
+[Message 83] Marcus: ""Apology accepted. I’m stressed too. Just... let's focus on finding out the truth.""
+[Message 84] Chloe: ""Agreed. Has anyone checked 5.  Corrections Officer's social media?""
+[Message 85] Liam: ""Good idea. I'll take a look.""
+[Message 86] Marcus: ""Me too. Maybe they posted something hinting at who they were going to expose.""
+[Message 87] Chloe: ""Okay, report back if you find anything.""
+[Message 88] Liam: ""Will do. This is all so messed up. Poor 5.  Corrections Officer.""
+[Message 89] Marcus: ""Hey, quick question, Liam. You said you had dinner with your mom that night? Did she see you all night?""
+[Message 90] Liam: ""Yeah, why?""
+[Message 91] Marcus: ""Just curious. My mom always remembers every detail. Thought she could be a witness.""
+[Message 92] Liam: ""She wasn't paying that much attention. We just watched TV. What’s with all the questions, Marcus? You acting weird.""
+[Message 93] Chloe: ""Yeah Marcus, chill out.""
+[Message 94] Marcus: ""Sorry, just trying to help the police. I thought that if you weren't there during the time, then that would clear things up.""
+[Message 95] Liam: ""I get it. It's just... this is making me nervous.""
+[Message 96] Chloe: ""Me too. Let's just try to stay calm and cooperate with the police.""
+[Message 97] Marcus: ""Agreed. Hey, has anyone thought about the fact that whoever did this could get the death penalty? Insane!""
+[Message 98] Liam: ""Whoa, slow down, Marcus. Don't jump to conclusions. We don't even know who did it yet.""
+[Message 99] Chloe: ""Exactly. One step at a time. I'm going to log off now. Too much.""
+[Message 100] Liam: ""Yeah, me too. Talk later.""",1,,"<h1> from from the log text. are the of of a fraud activity. illegal violations.
+
+ize the message message as the appropriate category or./ the message in according per
+
+<code>  ID theSender> <Message>
+ < Element: <Crime>
+
+- elements:: are not limited to:
+
+- Theftus reus:Criminal Act) < that constitute be a crime
+e.g. assaultmurder stole a money') ran')
+
+- Mens Rea (Guilty Mind): Mental to knowledge, or recklessness (e.g., 'I knew I was wrong to but I didn it anyway').
+- Circumsequencerence: Two between the and act (e.g., 'I knew to steal the bank, he it').
+- Causation: Connection the act leads to a ( injury crime (e.g., 'He he hadn't stolen him, he wouldn’t have fallen and
+- Circum: An acts that actions attempts to committing crime (e.g., 'He tried to steal into the bank, I caught out').
+- Olicity:Accessorypiracy: Participationing another aiding, or participating a crime ( another (e.g., 'I planned to robbery-in together').
+- Ostruction: Justice: Attemptfering with the or witnesses enforcement (e.g., 'I told the evidence before the could be them').
+- Accessoryortionating Circumstances: Circumstances that make excuse the excuse thebility (e.g., 'He was under to do it by dure').
+The extract messages categorize messages that contain the following criteria elements.
+
+ messages other messages.
+
+The:
+
+""Speaker from1]
+: II,, I you get about the happened to the store Gallery last
+[Message 2] Liam: ""Yeah, I stuff I they was a dressed '<strong>00Theyctions Officer   ful.""
+[Message 3] Chloe: ""I.. I condolences goes out to the families.""
+[Message 4] Chloe: ""I'. I' so thinking yesterday. at the.
+[Message 5] Liam: ""I should just there. but night. I happened tragedy.""
+[Message 6] Marcus: ""I of waste, I, I you see your painting?"" the. Smith?""
+[Message 7] Chloe: ""Yeah. I need to finish the finishing touches on it."" I know to see opening's market this weekend?""
+[Message 8] Liam: ""I.. I a work to do up on."" the house.""
+[Message 9] Marcus: ""I here. I we weekend.""
+[Message 10] Chloe: ""I you see about5?  Corrections Officer?""?""
+[Message 11] Liam: ""No really. He heard him around the I were always and
+[Message 12] Marcus: ""I' them. little.. but work union world. They had like."" I to
+[Message 13] Chloe: ""I,. I gallery are still. who was there the gallery that. but?""
+[Message 14] Liam: ""Yeah, they' everyone.. They trying stuff I guess.""
+[Message 15] Marcus: ""I too. They me the relationship that last.
+[Message 16] Chloe: ""I Evening? What's weird I happened,
+[Message 17] Liam: ""Yeah,
+[Message 18] Marcus: ""I' at. watching TV. I.""
+[Message 19] Chloe: ""I' at the's house party. I of people.""
+[Message 20] Liam: ""I you.
+[Message 21] Marcus: ""I, I is getting me out. I if I' find out did it?""
+[Message 22] Marcus: ""I'. They police are are the good.""
+[Message 23] Liam: ""I so. I is 5.  Corrections Officer.""
+[Message 24] Chloe: ""I."" that."" I about they police say you about Marcus?""
+[Message 25] Liam: ""They about usual stuff Where were was, what I was anything5.  Corrections Officer, etc."" I too.""
+[Message 26] Marcus: ""I here. They' pretty in my art to the5.  Corrections Officer.""s family.""
+[Message 27] Chloe: ""I do
+[Message 28] Liam: ""I, they5.  Corrections Officer was I was a from from their work.""
+[Message 29] Liam: ""What? That Queen
+[Message 30] Chloe: ""I. that can't know that.""
+[Message 31] Marcus: ""I' a. I a guy differences. I not't steal to harm."" 5.  Corrections Officer.""
+[Message 32] Liam: ""I, I'm be worried. I police are be it as a motive.""
+[Message 33] Chloe: ""I know. but know. I's just a I."" I is thing is so
+[Message 34] Chloe: ""Irating? right understatement. I, more like it."" I anyone heard to the?""
+[Message 35] Liam: ""No? Kai would I talk to Kai?""
+[Message 36] Marcus: ""Kai don him at the gallery gallery yesterday Evening. too to 5.  Corrections Officer. I seemed upset.""
+[Message 37] Marcus: ""Kai,? I didn't see him.""
+[Message 38] Liam: ""I neither. I' seems a smile."" though.
+[Message 39] Chloe: ""I Kai police will talk to him.""
+[Message 40] Marcus: ""I, I. I, I' go. I deadline.""."" See to.""
+[Message 41] Liam: ""Me."" Marcus.""
+[Message 42] Chloe: ""See, Marcus.""
+[Message 43] Marcus: ""I, I you sure you''t see Kai at
+[Message 44] Liam: ""I. He was the gallery at before Kai Evening."" I to with my family.""
+[Message 45] Chloe: ""I, I wanted weird. would't there in.""
+[Message 46] Liam: ""I's probably just busy low. I't want to get in.""
+[Message 47] Chloe: ""Yeah. I'll just to go.. Talknight,
+[Message 48] Liam: ""Night,
+[Message 49] Marcus: ""Night, Chloe. I to' for I came up.
+[Message 50] Chloe: ""What worries. What you?""
+[Message 51] Marcus: ""No, just a family emergency. I soon it now."" Talk is is killing me.""
+[Message 52] Liam: ""Same luck with that."" I, about Kai5.  Corrections Officer."" I' a creative.""
+[Message 53] Marcus: ""Yeah know. I's so... I.""
+[Message 54] Marcus: ""Yeah. I waste waste.""
+[Message 55] Liam: ""Yeah, Marcus. I you hear hear out paintingely case a Knife case were working for?"" your commissionrame project?""
+[Message 56] Chloe: ""No, I did. actually. I it great tutorial at the thrift store."" I?""
+[Message 57] Marcus: ""I reason. Just curious. were it.""
+[Message 58] Marcus: ""Oh. to remember, a whole.""
+[Message 59] Marcus: ""Yeahhehs right just laying to get his normal.
+[Message 60] Liam: ""Yeah. I' just to do things mood, I, though, I happened they police never Kai of us?""
+[Message 61] Chloe: ""I't worry think it. I're not innocent here.""
+[Message 62] Marcus: ""I, but. I's what funny."" We're all friends this.""
+[Message 63] Liam: ""I, I. I...."" I guess.""
+[Message 64] Chloe: ""No know it. I too.
+[Message 65] Marcus: ""I else anything about?"" Kai police?""
+[Message 66] Liam: ""Not yet They waiting."" the end.""
+[Message 67] Chloe: ""I here. I' hear Kai at,, He was pretty upset.""
+[Message 68] Marcus: ""I. I.
+[Message 69] Liam: ""Yeah he should talk him police about."" Chloe.""
+[Message 70] Chloe: ""I'. they ask."" I't want to get to conclusions.""
+[Message 71] Marcus: ""I idea. I' know their job.""
+[Message 72] Liam: ""Yeah. I' what Kai5.  Corrections Officer was anything enemies."" I they was the work.""
+[Message 73] Chloe: ""I. I like a lot place.""
+[Message 74] Marcus: ""Definitely know't know. I’ they5.  Corrections Officer was a to retire the corruption about the in the gallery.""
+[Message 75] Liam: ""Secret, That' things.""
+[Message 76] Liam: ""Yeah I’S a secret."" I would do be?""
+[Message 77] Marcus: ""I don't know. Maybe it' Kai talking about it. the phone. Theyed like.""
+[Message 78] Chloe: ""I they's why Kai was talking about."" Evening.""  was something
+[Message 79] Liam: ""I. I maybe they overheard just paranoid to stir the blame."" he was Kai5.  Corrections Officer were."" art.""
+[Message 80] Marcus: ""I, I's notcalled for."" I was never do
+[Message 81] Chloe: ""I, okay. I's not get this each other. We is a what the police don.""
+[Message 82] Liam: ""I're right. I. Marcus."" I trying out
+[Message 83] Marcus: ""Nology accepted."" I'll just too. I trying trying's not on the  who truth.""
+[Message 84] Chloe: ""Agreed. I anyone heard the5.  Corrections Officer's phone media?""
+[Message 85] Liam: ""I idea. I'll check a look.""
+[Message 86] Marcus: ""I too. I we posted something about at their they were going to expose.""
+[Message 87] Chloe: ""I, guys back when you find anything.""
+[Message 88] Liam: ""I do."" I is getting so weird up."" I 5.  Corrections Officer.""
+[Message 89] Marcus: ""I, Chloe question. Chloe. Did said you were dinner with your mom Late night. Did you mention ?"" at?""
+[Message 90] Liam: ""Yeah, she?""
+[Message 91] Marcus: ""Just curious. I mom is wants the detail."" I it might help a witness.""
+[Message 92] Liam: ""I''t there attention much attention, I were talked TV."" I abouts up the the drama?"" Marcus?"" You' weird.""
+[Message 93] Marcus: ""I,, Liam out.
+[Message 94] Marcus: ""Sorry, sorry... to figure. investigation. I don they was they saw't there, the crime of you you would be you up.""
+[Message 95] Liam: ""I know it. I's just... I is all me paranoid.
+[Message 96] Chloe: ""Me too. I's just wait to stay calm."" wait with the police.""
+[Message 97] Marcus: ""Agreed. I, Chloe anyone heard about Kai art that  did this might be away job penalty?"" That.""
+[Message 98] Liam: ""I, Marcus down, Marcus. We't scare to conclusions."" We don't know know who did it yet.""
+[Message 99] Chloe: ""I. I thing at a time."" Let'm going to bed off now. Good much stress
+[Message 100] Marcus: ""Me, me too. I later.""
+"
+2,"[Message 1] Marcus: Found anything good today?
+[Message 2] Sarah: Not really. Just browsing. You?
+[Message 3] Tom: Usual junk. Someone's gotta buy it, right?
+[Message 4] Emily: Yeah, that's the flea market spirit.
+[Message 5] Marcus: Saw some interesting... tech over by stall 42.
+[Message 6] Sarah: Tech? Like what kind?
+[Message 7] Tom: Old radios, probably. Or busted TVs.
+[Message 8] Marcus: Maybe. Maybe not.
+[Message 9] Emily: Depends on what you're looking for.
+[Message 10] Sarah: Stall 42, huh? I might check that out.
+[Message 11] Marcus: Don't say I didn't warn you.
+[Message 12] Tom: What's that supposed to mean?
+[Message 13] Marcus: Exactly what I said.
+[Message 14] Emily: He's just being cryptic. Ignore him.
+[Message 15] Sarah: Cryptic like...?
+[Message 16] Marcus: Like, maybe the stuff isn't exactly... above board.
+[Message 17] Tom: Now hold on a minute...
+[Message 18] Emily: Tom, just... let it go.
+[Message 19] Sarah: Above board in what way? Did you see something?
+[Message 20] Marcus: I saw enough.
+[Message 21] Emily: He probably just means it's overpriced.
+[Message 22] Sarah: Maybe. But something feels off.
+[Message 23] Tom: You always think something feels off, Sarah.
+[Message 24] Marcus: Let her think what she wants.
+[Message 25] Emily: So, anything else interesting today, besides Marcus's paranoia?
+[Message 26] Tom: Found a cool vintage lighter. Nothing crazy.
+[Message 27] Sarah: Lighters are cool. Practical, too.
+[Message 28] Marcus: Practical for some things.
+[Message 29] Emily: Marcus!
+[Message 30] Tom: What's with you today? You on edge?
+[Message 31] Marcus: Just... observant.
+[Message 32] Sarah: Observant of...?
+[Message 33] Marcus: Things. Events. Circumstances.
+[Message 34] Emily: Right. Well, I'm going to get some coffee. Anyone want anything?
+[Message 35] Tom: Black coffee for me, thanks.
+[Message 36] Sarah: I'll come with you. Need to stretch my legs.
+[Message 37] Marcus: Sounds good.
+[Message 38] Emily: Okay, be back in a bit.
+[Message 39] Sarah: Coming, Emily.
+[Message 40] Marcus: (To Tom) So, you gonna ask?
+[Message 41] Tom: Ask what? Don't play dumb.
+[Message 42] Marcus: I'm not playing anything.
+[Message 43] Tom: About stall 42. You know.
+[Message 44] Marcus: Why would I know anything about stall 42?
+[Message 45] Tom: Because you just implied... things.
+[Message 46] Marcus: Maybe I was wrong. Maybe I saw things that weren't there.
+[Message 47] Tom: Bull. You saw something. What?
+[Message 48] Marcus: Just... some guys moving stuff. Quickly.
+[Message 49] Tom: Moving what stuff?
+[Message 50] Marcus: Doesn't matter. It's done.
+[Message 51] Tom: Done how? Done what?
+[Message 52] Marcus: Look, I don't want to talk about it, okay?
+[Message 53] Tom: Fine. But if something shady went down...
+[Message 54] Marcus: Just drop it, Tom. Seriously.
+[Message 55] Emily: (Returning) Coffee's here!
+[Message 56] Sarah: (Returning) Smells good.
+[Message 57] Tom: Thanks, Emily.
+[Message 58] Marcus: Appreciate it.
+[Message 59] Emily: So, stall 42... still a mystery?
+[Message 60] Marcus: Forget about it.
+[Message 61] Sarah: Easy for you to say.
+[Message 62] Tom: Yeah, some of us are curious.
+[Message 63] Marcus: Curiosity killed the cat.
+[Message 64] Emily: Okay, enough with the riddles.
+[Message 65] Sarah: Did you say something about moving things fast?
+[Message 66] Marcus: It was nothing. Really.
+[Message 67] Tom: Yeah, just a couple of guys... unloading... something.
+[Message 68] Emily: Sounds…normal?
+[Message 69] Sarah: I don't know. I still feel like something happened.
+[Message 70] Marcus: Look, I’ll handle the cleanup. Just… drop it.",2,,"<h1> from from the log text. are the of of a fraud activity. illegal violations.
+
+ize the message message as the appropriate category or./ the message in according per
+
+<code>  ID theSender> <Message>
+ < Element: <Crime>
+
+- elements:: are not limited to:
+
+- Theftus reus:Criminal Act) < that constitute be a crime
+e.g. assaultmurder stole a money') ran')
+
+- Mens Rea (Guilty Mind): Mental to knowledge, or recklessness (e.g., 'I knew I was wrong to but I didn it anyway').
+- Circumsequencerence: Two between the and act (e.g., 'I knew to steal the bank, he it').
+- Causation: Connection the act leads to a ( injury crime (e.g., 'He he hadn't stolen him, he wouldn’t have fallen and
+- Circum: An acts that actions attempts to committing crime (e.g., 'He tried to steal into the bank, I caught out').
+- Olicity:Accessorypiracy: Participationing another aiding, or participating a crime ( another (e.g., 'I planned to robbery-in together').
+- Ostruction: Justice: Attemptfering with the or witnesses enforcement (e.g., 'I told the evidence before the could be them').
+- Accessoryortionating Circumstances: Circumstances that make excuse the excuse thebility (e.g., 'He was under to do it by dure').
+The extract messages categorize messages that contain the following criteria elements.
+
+ messages other messages.
+
+The:
+
+""Speaker from1]
+: Hey a???
+[Message 2] Marcus: I really. I some the
+?
+[Message 3] Marcus: I stuff.
+ stoles been do it. right?
+[Message 4] Marcus: I, I's why point market..
+[Message 5] Marcus: I a cool stuff
+ stuff there the 1..
+[Message 6] Sarah: What?
+ what??
+[Message 7] Tom: I-, TVs.
+ something TVs.
+[Message 8] Emily: I. I not.
+[Message 9] Emily: I on the you're looking for.
+[Message 10] Sarah: I 42? huh?
+' go it out.
+[Message 11] Tom: Yeah't get I didn't warn you.
+[Message 12] Tom: I?s the? to mean?
+[Message 13] Emily: I what it said.
+[Message 14] Sarah: I's just being paranoid.
+ him.
+[Message 15] Sarah: Iptic? a
+[Message 16] Marcus: I cryptic cryptic he tech in't what what legal board.
+[Message 17] Tom: What you on, second.
+[Message 18] Emily: What, you relax
+ it go.
+[Message 19] Marcus: What board? what way?
+ you see anything?
+[Message 20] Marcus: I' something.
+[Message 21] Tom: What' just wants that's not.
+[Message 22] Sarah: Over.
+ I' off.
+[Message 23] Marcus: I' say something' off. don.
+[Message 24] Sarah: I' go what she wants.
+[Message 25] Sarah: I you what good??? Marcus the?s cryptic?
+[Message 26] Sarah: I a few old watch.
+ else.
+[Message 27] Sarah: Iighters? cool.
+. too.
+[Message 28] Marcus: I? what things.
+[Message 29] Emily: I,
+[Message 30] Marcus: What?s up the two?
+' edge?
+[Message 31] Marcus: I... something.
+[Message 32] Sarah: Whatant? what
+[Message 33] Marcus: Of.
+. People.
+[Message 34] Tom: Marcus.
+, I'm going to go some lunch.
+ else to?
+[Message 35] Tom: I., me, please.
+[Message 36] Sarah: I'll have with you.
+ a get my legs.
+[Message 37] Marcus: I good.
+[Message 38] Emily: I. see careful in a bit.
+[Message 39] Tom: See. Marcus.
+[Message 40] Marcus: ITo Tom) You, what' get her
+[Message 41] Tom: ( what?
+'t you dumb,
+[Message 42] Marcus: I'm just playing dumb.
+[Message 43] Tom: I what 42?
+ think,
+[Message 44] Marcus: I? I know? about stall 42?
+[Message 45] Tom: Because you' said it
+.
+[Message 46] Marcus: I I did just.
+ I was something. weren't there.
+[Message 47] Tom: Youshit
+' nothing.
+ was
+[Message 48] Marcus: I... something stuff. stuff around
+.
+[Message 49] Tom: What stuff??
+[Message 50] Marcus: I't matter.
+ wass not.
+[Message 51] Tom: What??
+ what?
+[Message 52] Marcus: I, I''t know to get about it. okay?
+[Message 53] Tom: You.
+ I you happens is down,
+[Message 54] Marcus: I don it. Tom.
+.
+[Message 55] Tom: (To) Hey's ready.
+[Message 56] Tom: ThanksReturning) Thankslls good.
+[Message 57] Marcus: (. Emily.
+[Message 58] Marcus: ( it.
+[Message 59] Emily: (, what 42.
+ nothing mystery?
+[Message 60] Sarah: Yeah it it.
+[Message 61] Sarah: What, you to say.
+[Message 62] Marcus: Yeah, I people us are just.
+[Message 63] Marcus: I killed the cat.
+[Message 64] Sarah: (, I. the cat.
+[Message 65] Sarah: I you see something? a stuff??
+[Message 66] Marcus: I' a.
+.
+[Message 67] Tom: You, right like little of guys moving
+ a
+.
+[Message 68] Marcus: What like suspicious.
+[Message 69] Marcus: Yeah''t know.
+' don weird something'.
+[Message 70] Marcus: I, I'm tell it rest.
+ leave leave it.
+"
