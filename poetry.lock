@@ -1043,8 +1043,6 @@ files = []
 develop = true
 
 [package.dependencies]
-flask = ">=3.1.0,<4.0.0"
-flask_ml = ">=0.2.5,<0.3.0"
 huggingface_hub = ">=0.29.3,<0.30.0"
 numpy = ">=1.26.4,<3.0.0"
 ollama = ">=0.4.7,<0.5.0"

@@ -8,13 +8,13 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any, TypedDict
 from functools import lru_cache
-from flask import jsonify, request
-from flask_ml.flask_ml_server import MLServer
-from flask_ml.flask_ml_server.models import (
+from rb.lib.ml_service import MLService
+from rb.api.models  import (
     ResponseBody, FileResponse, FileType, InputSchema, ParameterSchema, 
     InputType, TextParameterDescriptor, TaskSchema, FileInput, DirectoryInput
 )
 import ollama
+import typer
 from collections import defaultdict
 
 
@@ -25,8 +25,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger('gemma-server')
 
+APP_NAME = "message-analyzer"
+
 # Initialize Flask-ML Server
-server = MLServer(__name__)
+server = MLService(APP_NAME)
 
 # Create a singleton instance of the inference engine
 @lru_cache(maxsize=1)
@@ -216,7 +218,6 @@ class GemmaOllamaInference:
 
 
 
-@server.route("/analyze", task_schema_func=create_crime_analysis_task_schema, short_title=" Message Analysis", order=0)
 def analyze_conversations(inputs: CrimeAnalysisInputs, parameters: CrimeAnalysisParameters) -> ResponseBody:
     """
     Process a CSV file containing conversations, extract criminal activities, and save results.
@@ -357,18 +358,57 @@ def analyze_conversations(inputs: CrimeAnalysisInputs, parameters: CrimeAnalysis
             except Exception as e:
                 logger.warning(f"Failed to remove temporary file: {str(e)}")
 
-@server.app.route("/", methods=["GET"])
-def root():
+def cli_parser(arg: str) -> dict:
     """
-    Root endpoint to verify that the server is running.
+    Parse a single string argument into the input dictionary.
     
-    Returns:
-        str: A welcome message.
+    Expected format: "input_file_path,output_directory_path"
     """
-    return "Welcome to the Message Analysis API!"
+    parts = arg.split(",")
+    if len(parts) != 2:
+        raise ValueError(
+            "Expected a single argument with two comma-separated paths: "
+            "input_file_path,output_directory_path"
+        )
+    input_file_path = parts[0].strip()
+    output_directory_path = parts[1].strip()
+    return {
+        "input_file": FileInput(path=input_file_path),
+        "output_file": DirectoryInput(path=output_directory_path)
+    }
+
+# Define the CLI parser for parameters (optional).
+def param_parser(arg: str) -> dict:
+    """
+    Parse a single string argument into the parameters dictionary.
+    
+    Expected: A comma-separated string of crime elements.
+    Defaults to "Actus Reus,Mens Rea" if empty.
+    """
+    crime_elements = arg.strip() if arg.strip() else "Actus Reus,Mens Rea"
+    return {"elements_of_crime": crime_elements}
+
+server.add_ml_service(
+    rule="/analyze",
+    ml_function=analyze_conversations,
+    inputs_cli_parser=typer.Argument(
+        parser=cli_parser,
+        help="Comma-separated paths: <input_file_path>,<output_directory_path>"
+    ),
+    parameters_cli_parser=typer.Argument(
+        parser=param_parser,
+        help="Comma-separated crime elements (e.g., 'Actus Reus,Mens Rea')"
+    ),
+    short_title="Criminal Activity Extraction",
+    order=0,
+    task_schema_func=create_crime_analysis_task_schema,
+)
+
+
+app = server.app
 
 # Run the server
 if __name__ == "__main__":
     print("Starting Message Analysis Server...")
     # Start the server
-    server.run(host="127.0.0.1", port=5000)
+    app()

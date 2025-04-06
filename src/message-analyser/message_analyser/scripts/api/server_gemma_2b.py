@@ -8,7 +8,7 @@ import numpy as np
 import onnxruntime as ort
 import re
 from pathlib import Path
-from typing import List, Dict, Any, TypedDict
+from typing_extensions import List, Dict, Any, TypedDict
 from functools import lru_cache
 from flask import jsonify, request
 from flask_ml.flask_ml_server import MLServer
