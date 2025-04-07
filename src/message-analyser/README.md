@@ -12,7 +12,7 @@ poetry install
 
 ### Using the CLI
 ```
-poetry run python src/message-analyser/message_analyser/main.py /message-analyzer/analyze "<input_file>,<output_directory>" "<elements of crime, seprated by commma>"  
+poetry run python src/message-analyser/message_analyser/main.py /message-analyzer/analyze "<input_file>,<output_directory>" "<elements of crime, separated by comma>"  
 ```
 
 
