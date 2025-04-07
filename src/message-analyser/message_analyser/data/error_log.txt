@@ -1,9 +1,0 @@
-Error: [Errno 13] Permission denied: 'C:\\Users\\jaiso\\Documents\\University\\Semester VIII\\CS596E\\Message-Analyser\\data\\predicted_result.csv'
-Timestamp: 2025-03-30 20:39:03
-
-Stack trace:
-Traceback (most recent call last):
-  File "C:\Users\jaiso\Documents\University\Semester VIII\CS596E\Message-Analyser\scripts\api\server.py", line 323, in analyze_conversations
-    with open(RESULTS_FILE, "w", newline="") as f:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-PermissionError: [Errno 13] Permission denied: 'C:\\Users\\jaiso\\Documents\\University\\Semester VIII\\CS596E\\Message-Analyser\\data\\predicted_result.csv'
