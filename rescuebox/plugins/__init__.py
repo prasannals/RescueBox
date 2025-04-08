@@ -13,6 +13,7 @@ from age_and_gender_detection.main import app as age_gender_app, APP_NAME as AGE
 from doc_parser.main import app as doc_parser_app  # type: ignore
 from file_utils.main import app as file_utils_app  # type: ignore
 
+from message_analyser.main import app as message_analyser_app, APP_NAME as MESSAGE_ANALYSER_APP_NAME  # type: ignore
 
 @dataclass(frozen=True)
 class RescueBoxPlugin:
@@ -30,6 +31,7 @@ plugins: list[RescueBoxPlugin] = [
     ),
     RescueBoxPlugin(age_gender_app, AGE_GENDER_APP_NAME, "Age and Gender Classifier"),
     RescueBoxPlugin(text_summary_app, TEXT_SUM_APP_NAME, "Text summarization library"),
+    RescueBoxPlugin(message_analyser_app, MESSAGE_ANALYSER_APP_NAME, "Message Analyser library"),
 ]
 
 # Ensure this module is importable
