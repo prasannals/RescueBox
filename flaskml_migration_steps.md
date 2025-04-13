@@ -24,6 +24,19 @@ rm src/<project_dir>/.gitignore
 # Add this to the [tool.poetry.dependencies] section
 project-name = {path = "src/project-name", develop = true}
 ```
+IMPORTANT: Specify the version of the dependencies in the root level pyproject.toml. The individual plugin's pyproject.toml must not contain the version numbers.
+Example: Project's pyproject.toml
+```
+[tool.poetry.dependencies]
+ollama = "*"
+pypdf2 = "*"
+```
+Example: Root level pyproject.toml
+```
+[tool.poetry.dependencies]
+ollama = ">=0.4.7,<0.5.0"
+pypdf2 = ">=3.0.1,<4.0.0"
+```
 8. Install the dependencies for the entire project. Go to the root directory of the project and run:
 ```
 poetry install
