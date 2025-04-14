@@ -15,9 +15,9 @@ class TestMessageAnalyzer(RBAppTest):
 
     def get_metadata(self):
         return AppMetadata(
-            name="Message Analyzer",
+            name="Message Analyzer for Criminal Activity Extraction from Conversations",
             author="Satya Srujana Pilli, Shalom Jaison, Ashwini Ramesh Kumar",
-            version="0.1.0",
+            version="1.0.0",
             info="This application extracts and categorizes potential criminal activities from conversation text using a Gemma-2B ONNX model.",
         )
 

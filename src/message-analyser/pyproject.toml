@@ -1,4 +1,4 @@
-[project]
+[tool.poetry]
 name = "message_analyser"
 version = "0.1.0"
 description = "Analyse criminal activity in conversations"
@@ -7,19 +7,19 @@ authors = [
 ]
 packages = [{include = "message_analyser"}]
 readme = "README.md"
-requires-python = ">=3.10,<4.0.0"
-dependencies = [
-    "huggingface_hub (>=0.29.3,<0.30.0)",
-    "numpy (>=1.26.4,<3.0.0)",
-    "ollama (>=0.4.7,<0.5.0)",
-    "pandas (>=2.2.3,<3.0.0)",
-    "scikit_learn (>=1.6.1,<2.0.0)",
-    "torch (>=2.6.0,<3.0.0)",
-    "transformers (>=4.50.3,<5.0.0)",
-    "onnxruntime (>=1.16.0,<2.0.0)",
-]
+
+[tool.poetry.scripts]
+message_analyser = "message_analyser.main:app"
+
+
+[tool.poetry.dependencies]
+    numpy = "*"
+    ollama = "*"
+    pandas = "*"
+    scikit_learn = "*"
+    torch "*"
 
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core>"]
 build-backend = "poetry.core.masonry.api"
