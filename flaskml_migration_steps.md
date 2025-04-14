@@ -24,7 +24,7 @@ rm src/<project_dir>/.gitignore
 # Add this to the [tool.poetry.dependencies] section
 project-name = {path = "src/project-name", develop = true}
 ```
-IMPORTANT: Specify the version of the dependencies in the root level pyproject.toml. The individual plugin's pyproject.toml must not contain the version numbers.
+NOTE: Specify the version of the dependencies in the root level pyproject.toml. The individual plugin's pyproject.toml must not contain the version numbers.
 Example: Project's pyproject.toml
 ```
 [tool.poetry.dependencies]
