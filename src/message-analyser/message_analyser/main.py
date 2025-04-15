@@ -456,9 +456,7 @@ server.add_ml_service(
 def ensure_model_exists(model_name) -> None:
     response = ollama.pull(model_name)
     if response.status != "success":
-        logger.exception(
-            f"Failed to pull model '{model_name}': {response.error}"
-        )
+        logger.exception(f"Failed to pull model '{model_name}': {response.error}")
         raise RuntimeError(f"Failed to pull model 'mistral:7b-instruct': {response}")
 
 
