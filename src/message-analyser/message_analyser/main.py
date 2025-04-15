@@ -124,7 +124,7 @@ class GemmaOllamaInference:
     def generate_text(self, prompt: str) -> str:
         try:
             ensure_model_exists(self)
-            print(prompt)
+            logger.info("Prompt: ", prompt)
             response = ollama.chat(
                 model=self.model_name, messages=[{"role": "user", "content": prompt}]
             )
@@ -461,8 +461,7 @@ def ensure_model_exists(self) -> None:
 
 app = server.app
 
-# Run the server
+# Run the typer app
 if __name__ == "__main__":
-    print("Starting Message Analysis Server...")
-    # Start the server
+    logger.info("Starting Message Analysis Server...")
     app()
