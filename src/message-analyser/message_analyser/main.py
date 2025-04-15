@@ -105,6 +105,7 @@ def create_crime_analysis_task_schema() -> TaskSchema:
 
 # Add application metadata
 server.add_app_metadata(
+    plugin_name=APP_NAME,
     name="Message Analyzer for Criminal Activity Extraction from Conversations",
     author="Satya Srujana Pilli, Shalom Jaison, Ashwini Ramesh Kumar",
     version="1.0.0",

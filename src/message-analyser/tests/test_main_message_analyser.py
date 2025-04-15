@@ -19,6 +19,7 @@ class TestMessageAnalyzer(RBAppTest):
             author="Satya Srujana Pilli, Shalom Jaison, Ashwini Ramesh Kumar",
             version="1.0.0",
             info="This application extracts and categorizes potential criminal activities from conversation text using a Gemma-2B ONNX model.",
+            plugin_name=APP_NAME,
         )
 
     def get_all_ml_services(self):
