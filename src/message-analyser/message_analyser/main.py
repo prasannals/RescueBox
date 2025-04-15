@@ -123,7 +123,7 @@ class GemmaOllamaInference:
 
     def generate_text(self, prompt: str) -> str:
         try:
-            ensure_model_exists(self)
+            ensure_model_exists("mistral:7b-instruct")
             logger.info("Prompt: ", prompt)
             response = ollama.chat(
                 model=self.model_name, messages=[{"role": "user", "content": prompt}]
@@ -453,9 +453,12 @@ server.add_ml_service(
 )
 
 
-def ensure_model_exists(self) -> None:
-    response = ollama.pull("mistral:7b-instruct")
+def ensure_model_exists(model_name) -> None:
+    response = ollama.pull(model_name)
     if response.status != "success":
+        logger.exception(
+            f"Failed to pull model '{model_name}': {response.error}"
+        )
         raise RuntimeError(f"Failed to pull model 'mistral:7b-instruct': {response}")
 
 
