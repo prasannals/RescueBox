@@ -4,6 +4,7 @@ import csv
 import logging
 import pandas as pd
 import re
+from enum import Enum
 from pathlib import Path
 from typing import List, Dict, TypedDict
 from functools import lru_cache
@@ -19,6 +20,8 @@ from rb.api.models import (
     TaskSchema,
     FileInput,
     DirectoryInput,
+    EnumParameterDescriptor,
+    EnumVal
 )
 import ollama
 import typer
@@ -39,13 +42,27 @@ APP_NAME = "message-analyzer"
 # Initialize Flask-ML Server
 server = MLService(APP_NAME)
 
+def load_model(model_name: str = "gemma"):
+    if model_name == "mistral":
+        return MistralOllamaInference()
+    elif model_name == "gemma":
+        return GemmaOllamaInference()
+    else:
+        raise ValueError(f"Unknown Model Name: {model_name}")
 
 # Create a singleton instance of the inference engine
 @lru_cache(maxsize=1)
-def get_inference_engine():
-    """Get or create the inference engine singleton"""
-    return GemmaOllamaInference()
+def get_inference_engine(model_type):
+    if(model_type == "GEMMA3B"):
+        model_name = "gemma"
+    else:
+        model_name = "mistral"
+    return load_model(model_name)
 
+# Define the model type
+class ModelType(str, Enum):
+    GEMMA3   = "GEMMA3"
+    MISTRAL7B = "MISTRAL7B"
 
 # Define input and parameter types for Flask ML
 class CrimeAnalysisInputs(TypedDict):
@@ -69,7 +86,7 @@ class CrimeAnalysisParameters(TypedDict):
     """
 
     elements_of_crime: str
-
+    model_type: str
 
 # Define the UI schema for the task
 def create_crime_analysis_task_schema() -> TaskSchema:
@@ -97,9 +114,22 @@ def create_crime_analysis_task_schema() -> TaskSchema:
         value=TextParameterDescriptor(default="Actus Reus,Mens Rea"),
     )
 
+    model_schema = ParameterSchema(
+        key="model_type",
+        label="Model to use for analysis",
+        subtitle="Choose GEMMA3 or MISTRAL7B",
+        value=EnumParameterDescriptor(
+            enum_vals=[
+                EnumVal(key=mt.value, label=mt.name)  
+                for mt in ModelType
+            ],
+            default=ModelType.MISTRAL7B.value,
+        ),
+    )
+
     return TaskSchema(
         inputs=[input_schema, output_schema],  # Only input is the CSV file
-        parameters=[elements_of_crime_schema],
+        parameters=[elements_of_crime_schema, model_schema],  # Parameters for analysis
     )
 
 
@@ -113,7 +143,7 @@ server.add_app_metadata(
 )
 
 
-class GemmaOllamaInference:
+class MistralOllamaInference:
     """
     Inference engine using Ollama with Mistral 7B for text generation
     """
@@ -247,8 +277,126 @@ class GemmaOllamaInference:
 
         return dict(grouped_results)
 
+class GemmaOllamaInference:
+    """
+    Inference engine using Ollama with Gemma3: 12 Billion Parameter for text generation
+    """
+    def __init__(self, model_name="gemma3:12b"):
+        self.model_name = model_name
 
-def analyse(df: pd.DataFrame, crime_elements: str, results_dir: Path) -> Path:
+    def generate_text(self, prompt: str) -> str:
+        try:
+            print(prompt)
+            response = ollama.chat(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response["message"]["content"]
+        except Exception as e:
+            # logger.error(f"Ollama generation error: {str(e)}")
+            return f"Error: {str(e)}"
+    
+    def extract_criminal_activity(self, conversation: str, crime_elements_str: str) -> str:
+        """
+        Extracts specified crime elements from a conversation using Ollama (Mistral).
+        Ensures structured output only — no summaries, no interpretations.
+        """
+
+        crime_elements = [elem.strip() for elem in crime_elements_str.split(",") if elem.strip()]
+        
+        gold_examples = """
+        Mens Rea:
+        {Message Number: 31, Speaker: Marcus, content: "Definitely didn't intend any harm to 5. Corrections Officer."}
+        {Message Number: 79, Speaker: Liam, content: "Maybe Marcus is just trying to shift the blame since he and 5. Corrections Officer argued about art."}
+
+        Actus Reus:
+        {Message Number: 48, Speaker: Marcus, content: "Just... some guys moving stuff. Quickly."}
+        {Message Number: 70, Speaker: Marcus, content: "I'll handle the cleanup. Just… drop it."}
+        """
+
+        prompt = f"""
+        You are a forensic conversation analyst. Your job is to extract ONLY the following crime elements from the conversation:
+
+        CRIME ELEMENTS TO EXTRACT: {', '.join(crime_elements)}
+
+        ---
+
+        🧠 DO NOT:
+        - Do NOT paraphrase, summarize, or explain.
+        - Do NOT include bullets or markdown.
+        - Do NOT include observations or conclusions.
+        - Do NOT output if you're unsure — just leave that element blank.
+        - If no message fits, return NOTHING.
+
+        ---
+
+        ✅ OUTPUT FORMAT:
+        [List only the requested crime elements.]
+
+        Mens Rea:
+        {{Message Number: <num>, Speaker: <name>, content: "<exact message text>"}}
+
+        Actus Reus:
+        {{Message Number: <num>, Speaker: <name>, content: "<exact message text>"}}
+
+        ❌ INCORRECT FORMATS:
+        - Mens Rea: They sounded guilty.
+        - Actus Reus: Someone did something illegal.
+
+        ---
+
+        📌 EXAMPLE:
+        {gold_examples}
+
+        ---
+
+        Now analyze the following conversation:
+
+        {conversation}
+
+        ---
+
+        EXTRACTED CRIMINAL ELEMENTS:
+        """
+        
+        return self.generate_text(prompt)
+
+    def parse_results_grouped(self, model_output: str, conversation_id: int, chunk_id: int) -> Dict[str, List[Dict]]:
+        """
+        Parses the model output and returns a dictionary grouping messages by crime element.
+        """
+        grouped_results = defaultdict(list)
+        current_crime_element = None
+
+        for line in model_output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+
+            # Detect crime element section
+            crime_element_match = re.match(r"^(Mens Rea|Actus Reus|Concurrence|Causation|Attempt|Complicity/Conspiracy|Obstruction of Justice|Extenuating Circumstances):$", line)
+            if crime_element_match:
+                current_crime_element = crime_element_match.group(1)
+                continue
+
+            # Match structured message line
+            message_match = re.match(r"\{Message Number:\s*(\d+),\s*Speaker:\s*(.*?),\s*content:\s*\"(.*?)\"\}", line)
+            if message_match and current_crime_element:
+                message_number = int(message_match.group(1))
+                speaker = message_match.group(2).strip()
+                content = message_match.group(3).strip()
+
+                grouped_results[current_crime_element].append({
+                    "conversation_id": conversation_id,
+                    "chunk_id": chunk_id,
+                    "message_number": message_number,
+                    "speaker": speaker,
+                    "message": content
+                })
+
+        return dict(grouped_results)
+
+def analyse(df: pd.DataFrame, crime_elements: str, model_type: str, results_dir: Path) -> Path:
     """
     Process the DataFrame using the inference engine to extract criminal activities,
     then write the results to a CSV file in the given results directory.
@@ -258,7 +406,7 @@ def analyse(df: pd.DataFrame, crime_elements: str, results_dir: Path) -> Path:
     :param results_dir: The directory where the output CSV should be saved.
     :return: The Path to the created CSV file.
     """
-    engine = get_inference_engine()
+    engine = get_inference_engine(model_type)
     results = []
 
     for i, row in df.iterrows():
@@ -371,9 +519,16 @@ def analyze_conversations(
 
         if "conversation" not in df.columns:
             raise ValueError("CSV file must contain a 'conversation' column")
+        
+        raw_model_type = parameters.get("model_type", ModelType.MISTRAL7B.value).upper()
+
+        try:
+            model_type = ModelType(raw_model_type)
+        except ValueError:
+            raise ValueError(f"model_type must be one of {[m.value for m in ModelType]}")
 
         # Delegate the analysis and CSV creation to the helper function.
-        results_file = analyse(df, crime_elements, RESULTS_DIR)
+        results_file = analyse(df, crime_elements, model_type, RESULTS_DIR)
         logger.info(
             f"Analysis completed in {time.time() - start_time:.2f}s. Results saved to {results_file}"
         )

@@ -4,6 +4,7 @@ from message_analyser.main import (
     app as cli_app,
     APP_NAME,
     create_crime_analysis_task_schema,
+    ModelType
 )
 from rb.lib.common_tests import RBAppTest
 from unittest.mock import patch
@@ -39,8 +40,9 @@ class TestMessageAnalyzer(RBAppTest):
         bad_file = Path.cwd() / "src" / "message-analyser" / "tests" / "bad_test.csv"
         results_dir = Path.cwd() / "src" / "message-analyser" / "results"
         combined_arg = f"{str(bad_file)},{str(results_dir)}"
+        model_type = ModelType.GEMMA3
         result = self.runner.invoke(
-            cli_app, [analyze_api, combined_arg, "Actus Reus,Mens Rea"]
+            cli_app, [analyze_api, combined_arg, "Actus Reus,Mens Rea", model_type]
         )
         # Expect an error message or a non-zero exit code.
         assert "Error analyzing" in result.stdout or result.exit_code != 0
@@ -53,6 +55,7 @@ class TestMessageAnalyzer(RBAppTest):
         )
         results_dir = Path.cwd() / "src" / "message-analyser" / "results"
         combined_arg = f"{str(test_csv)},{str(results_dir)}"
+        model_type = ModelType.GEMMA3
 
         # Create (or ensure) the mock CSV file exists with the expected content.
         results_dir.mkdir(parents=True, exist_ok=True)
@@ -62,7 +65,7 @@ class TestMessageAnalyzer(RBAppTest):
         # Patch write_results_to_csv to return the mock CSV file's path.
         with patch("message_analyser.main.analyse", return_value=str(mocked_csv_file)):
             result = self.runner.invoke(
-                cli_app, [analyze_api, combined_arg, "Actus Reus,Mens Rea"]
+                cli_app, [analyze_api, combined_arg, "Actus Reus,Mens Rea", model_type]
             )
 
         print("CLI Result:", result.stdout)
@@ -91,13 +94,15 @@ class TestMessageAnalyzer(RBAppTest):
         mocked_csv_file = results_dir / "mocked_output.csv"
         mocked_csv_file.write_text("Mocked Analysis")
 
+        model_type = ModelType.GEMMA3
+
         # Construct the JSON payload expected by the API.
         input_json = {
             "inputs": {
                 "input_file": {"path": str(test_csv)},
                 "output_file": {"path": str(results_dir)},
             },
-            "parameters": {"elements_of_crime": "Actus Reus,Mens Rea"},
+            "parameters": {"elements_of_crime": "Actus Reus,Mens Rea", "model_type": model_type},
         }
 
         # Patch write_results_to_csv to return the mock CSV file's path.
