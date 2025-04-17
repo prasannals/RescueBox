@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "message-analyser"
+version = "0.1.0"
+description = "Analyse criminal activity in conversations"
+authors = ["mohanasrujana <mohanasrujana@gmail.com>"]
+packages = [{include = "message_analyser"}]
+readme = "README.md"
+
+[tool.poetry.scripts]
+message_analyser = "message_analyser.main:app"
+
+
+[tool.poetry.dependencies]
+python = "*"
+numpy = "*"
+ollama = "*"
+pandas = "*"
+scikit_learn = "*"
+torch = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
