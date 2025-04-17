@@ -4,7 +4,7 @@ from message_analyser.main import (
     app as cli_app,
     APP_NAME,
     create_crime_analysis_task_schema,
-    ModelType
+    ModelType,
 )
 from rb.lib.common_tests import RBAppTest
 from unittest.mock import patch
@@ -55,7 +55,10 @@ class TestMessageAnalyzer(RBAppTest):
         )
         results_dir = Path.cwd() / "src" / "message-analyser" / "results"
         combined_arg = f"{str(test_csv)},{str(results_dir)}"
+        crime_elements = "Actus Reus,Mens Rea"
         model_type = ModelType.GEMMA3
+
+        combined_params = f"{str(crime_elements)},{str(model_type)}"
 
         # Create (or ensure) the mock CSV file exists with the expected content.
         results_dir.mkdir(parents=True, exist_ok=True)
@@ -65,7 +68,7 @@ class TestMessageAnalyzer(RBAppTest):
         # Patch write_results_to_csv to return the mock CSV file's path.
         with patch("message_analyser.main.analyse", return_value=str(mocked_csv_file)):
             result = self.runner.invoke(
-                cli_app, [analyze_api, combined_arg, "Actus Reus,Mens Rea", model_type]
+                cli_app, [analyze_api, combined_arg, combined_params]
             )
 
         print("CLI Result:", result.stdout)
@@ -102,7 +105,10 @@ class TestMessageAnalyzer(RBAppTest):
                 "input_file": {"path": str(test_csv)},
                 "output_file": {"path": str(results_dir)},
             },
-            "parameters": {"elements_of_crime": "Actus Reus,Mens Rea", "model_type": model_type},
+            "parameters": {
+                "elements_of_crime": "Actus Reus,Mens Rea",
+                "model_type": model_type,
+            },
         }
 
         # Patch write_results_to_csv to return the mock CSV file's path.

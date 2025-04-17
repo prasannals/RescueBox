@@ -21,7 +21,7 @@ from rb.api.models import (
     FileInput,
     DirectoryInput,
     EnumParameterDescriptor,
-    EnumVal
+    EnumVal,
 )
 import ollama
 import typer
@@ -42,6 +42,7 @@ APP_NAME = "message-analyzer"
 # Initialize Flask-ML Server
 server = MLService(APP_NAME)
 
+
 def load_model(model_name: str = "gemma"):
     if model_name == "mistral":
         return MistralOllamaInference()
@@ -50,19 +51,22 @@ def load_model(model_name: str = "gemma"):
     else:
         raise ValueError(f"Unknown Model Name: {model_name}")
 
+
 # Create a singleton instance of the inference engine
 @lru_cache(maxsize=1)
 def get_inference_engine(model_type):
-    if(model_type == "GEMMA3B"):
+    if model_type == "GEMMA3B":
         model_name = "gemma"
     else:
         model_name = "mistral"
     return load_model(model_name)
 
+
 # Define the model type
 class ModelType(str, Enum):
-    GEMMA3   = "GEMMA3"
+    GEMMA3 = "GEMMA3"
     MISTRAL7B = "MISTRAL7B"
+
 
 # Define input and parameter types for Flask ML
 class CrimeAnalysisInputs(TypedDict):
@@ -87,6 +91,7 @@ class CrimeAnalysisParameters(TypedDict):
 
     elements_of_crime: str
     model_type: str
+
 
 # Define the UI schema for the task
 def create_crime_analysis_task_schema() -> TaskSchema:
@@ -119,10 +124,7 @@ def create_crime_analysis_task_schema() -> TaskSchema:
         label="Model to use for analysis",
         subtitle="Choose GEMMA3 or MISTRAL7B",
         value=EnumParameterDescriptor(
-            enum_vals=[
-                EnumVal(key=mt.value, label=mt.name)  
-                for mt in ModelType
-            ],
+            enum_vals=[EnumVal(key=mt.value, label=mt.name) for mt in ModelType],
             default=ModelType.MISTRAL7B.value,
         ),
     )
@@ -277,10 +279,12 @@ class MistralOllamaInference:
 
         return dict(grouped_results)
 
+
 class GemmaOllamaInference:
     """
     Inference engine using Ollama with Gemma3: 12 Billion Parameter for text generation
     """
+
     def __init__(self, model_name="gemma3:12b"):
         self.model_name = model_name
 
@@ -288,22 +292,25 @@ class GemmaOllamaInference:
         try:
             print(prompt)
             response = ollama.chat(
-                model=self.model_name,
-                messages=[{"role": "user", "content": prompt}]
+                model=self.model_name, messages=[{"role": "user", "content": prompt}]
             )
             return response["message"]["content"]
         except Exception as e:
             # logger.error(f"Ollama generation error: {str(e)}")
             return f"Error: {str(e)}"
-    
-    def extract_criminal_activity(self, conversation: str, crime_elements_str: str) -> str:
+
+    def extract_criminal_activity(
+        self, conversation: str, crime_elements_str: str
+    ) -> str:
         """
         Extracts specified crime elements from a conversation using Ollama (Mistral).
         Ensures structured output only — no summaries, no interpretations.
         """
 
-        crime_elements = [elem.strip() for elem in crime_elements_str.split(",") if elem.strip()]
-        
+        crime_elements = [
+            elem.strip() for elem in crime_elements_str.split(",") if elem.strip()
+        ]
+
         gold_examples = """
         Mens Rea:
         {Message Number: 31, Speaker: Marcus, content: "Definitely didn't intend any harm to 5. Corrections Officer."}
@@ -358,10 +365,12 @@ class GemmaOllamaInference:
 
         EXTRACTED CRIMINAL ELEMENTS:
         """
-        
+
         return self.generate_text(prompt)
 
-    def parse_results_grouped(self, model_output: str, conversation_id: int, chunk_id: int) -> Dict[str, List[Dict]]:
+    def parse_results_grouped(
+        self, model_output: str, conversation_id: int, chunk_id: int
+    ) -> Dict[str, List[Dict]]:
         """
         Parses the model output and returns a dictionary grouping messages by crime element.
         """
@@ -374,29 +383,40 @@ class GemmaOllamaInference:
                 continue
 
             # Detect crime element section
-            crime_element_match = re.match(r"^(Mens Rea|Actus Reus|Concurrence|Causation|Attempt|Complicity/Conspiracy|Obstruction of Justice|Extenuating Circumstances):$", line)
+            crime_element_match = re.match(
+                r"^(Mens Rea|Actus Reus|Concurrence|Causation|Attempt|Complicity/Conspiracy|Obstruction of Justice|Extenuating Circumstances):$",
+                line,
+            )
             if crime_element_match:
                 current_crime_element = crime_element_match.group(1)
                 continue
 
             # Match structured message line
-            message_match = re.match(r"\{Message Number:\s*(\d+),\s*Speaker:\s*(.*?),\s*content:\s*\"(.*?)\"\}", line)
+            message_match = re.match(
+                r"\{Message Number:\s*(\d+),\s*Speaker:\s*(.*?),\s*content:\s*\"(.*?)\"\}",
+                line,
+            )
             if message_match and current_crime_element:
                 message_number = int(message_match.group(1))
                 speaker = message_match.group(2).strip()
                 content = message_match.group(3).strip()
 
-                grouped_results[current_crime_element].append({
-                    "conversation_id": conversation_id,
-                    "chunk_id": chunk_id,
-                    "message_number": message_number,
-                    "speaker": speaker,
-                    "message": content
-                })
+                grouped_results[current_crime_element].append(
+                    {
+                        "conversation_id": conversation_id,
+                        "chunk_id": chunk_id,
+                        "message_number": message_number,
+                        "speaker": speaker,
+                        "message": content,
+                    }
+                )
 
         return dict(grouped_results)
 
-def analyse(df: pd.DataFrame, crime_elements: str, model_type: str, results_dir: Path) -> Path:
+
+def analyse(
+    df: pd.DataFrame, crime_elements: str, model_type: str, results_dir: Path
+) -> Path:
     """
     Process the DataFrame using the inference engine to extract criminal activities,
     then write the results to a CSV file in the given results directory.
@@ -519,13 +539,15 @@ def analyze_conversations(
 
         if "conversation" not in df.columns:
             raise ValueError("CSV file must contain a 'conversation' column")
-        
+
         raw_model_type = parameters.get("model_type", ModelType.MISTRAL7B.value).upper()
 
         try:
             model_type = ModelType(raw_model_type)
         except ValueError:
-            raise ValueError(f"model_type must be one of {[m.value for m in ModelType]}")
+            raise ValueError(
+                f"model_type must be one of {[m.value for m in ModelType]}"
+            )
 
         # Delegate the analysis and CSV creation to the helper function.
         results_file = analyse(df, crime_elements, model_type, RESULTS_DIR)
@@ -581,14 +603,24 @@ def cli_parser(arg: str) -> dict:
 
 # Define the CLI parser for parameters (optional).
 def param_parser(arg: str) -> dict:
-    """
-    Parse a single string argument into the parameters dictionary.
 
-    Expected: A comma-separated string of crime elements.
-    Defaults to "Actus Reus,Mens Rea" if empty.
-    """
-    crime_elements = arg.strip() if arg.strip() else "Actus Reus,Mens Rea"
-    return {"elements_of_crime": crime_elements}
+    tokens = [tok.strip() for tok in arg.split(",") if tok.strip()]
+    default_elements = "Actus Reus,Mens Rea"
+    default_model = ModelType.MISTRAL7B
+
+    if not tokens:
+        return {"elements_of_crime": default_elements, "model": default_model.value}
+
+    last = tokens[-1].upper()
+    # check if last token is a valid ModelType
+    if last in (m.value for m in ModelType):
+        model = ModelType(last)
+        elements = ",".join(tokens[:-1]) or default_elements
+    else:
+        model = default_model
+        elements = ",".join(tokens)  # treat all as elements
+
+    return {"elements_of_crime": elements, "model": model.value}
 
 
 server.add_ml_service(
@@ -600,7 +632,7 @@ server.add_ml_service(
     ),
     parameters_cli_parser=typer.Argument(
         parser=param_parser,
-        help="Comma-separated crime elements (e.g., 'Actus Reus,Mens Rea')",
+        help="Comma-separated crime elements (e.g., 'Actus Reus,Mens Rea'), and model type (e.g., 'GEMMA3').",
     ),
     short_title="Criminal Activity Extraction",
     order=0,
