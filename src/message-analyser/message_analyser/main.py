@@ -1,12 +1,9 @@
 import os
 import time
-import csv
 import logging
-import pandas as pd
-import re
 from enum import Enum
 from pathlib import Path
-from typing import List, Dict, TypedDict
+from typing import TypedDict
 from functools import lru_cache
 from rb.lib.ml_service import MLService
 from rb.api.models import (
@@ -18,17 +15,16 @@ from rb.api.models import (
     InputType,
     TextParameterDescriptor,
     TaskSchema,
-    FileInput,
     DirectoryInput,
     EnumParameterDescriptor,
     EnumVal,
+    BatchFileInput,
 )
 import ollama
 import typer
-from collections import defaultdict
 import traceback
-import tempfile
-import shutil
+from .InputsHandler import InputsHandler
+from .OutputParser import OutputParser
 
 
 # Configure logging
@@ -68,6 +64,26 @@ class ModelType(str, Enum):
     MISTRAL7B = "MISTRAL7B"
 
 
+class Usecases(str, Enum):
+    Actus_Reus_analysis = "1"
+    Mens_Rea_analysis = "2"
+    Custom_prompt_analysis = "3"
+
+
+class OutputType(str, Enum):
+    csv = "csv"
+    xlsx = "xlsx"
+    pdf = "pdf"
+    txt = "txt"
+
+
+def map_outputfiletype_FileType(output_type):
+    if output_type == "csv":
+        return FileType.CSV
+    elif output_type == "txt":
+        return FileType.TEXT
+
+
 # Define input and parameter types for Flask ML
 class CrimeAnalysisInputs(TypedDict):
     """
@@ -77,7 +93,7 @@ class CrimeAnalysisInputs(TypedDict):
         input_file: Path to the CSV file containing conversations.
     """
 
-    input_file: FileInput
+    input_file: BatchFileInput
     output_file: DirectoryInput
 
 
@@ -89,8 +105,10 @@ class CrimeAnalysisParameters(TypedDict):
         include_all_messages: Whether to include all messages or only those with crime elements.
     """
 
-    elements_of_crime: str
-    model_type: str
+    model_name: str
+    usecase: str
+    output_type: str
+    usecase3: str
 
 
 # Define the UI schema for the task
@@ -104,7 +122,7 @@ def create_crime_analysis_task_schema() -> TaskSchema:
     input_schema = InputSchema(
         key="input_file",
         label="CSV file containing conversations",
-        input_type=InputType.FILE,
+        input_type=InputType.BATCHFILE,
     )
     output_schema = InputSchema(
         key="output_file",
@@ -112,15 +130,18 @@ def create_crime_analysis_task_schema() -> TaskSchema:
         input_type=InputType.DIRECTORY,
     )
 
-    elements_of_crime_schema = ParameterSchema(
-        key="elements_of_crime",
-        label="Elements of Crime",
-        subtitle="Elements of Crime to be found in the Conversation",
-        value=TextParameterDescriptor(default="Actus Reus,Mens Rea"),
+    output_type = ParameterSchema(
+        key="output_type",
+        label="Output type",
+        subtitle="Desired output file type",
+        value=EnumParameterDescriptor(
+            enum_vals=[EnumVal(key=mt.value, label=mt.name) for mt in OutputType],
+            default=OutputType.csv.value,
+        ),
     )
 
     model_schema = ParameterSchema(
-        key="model_type",
+        key="model_name",
         label="Model to use for analysis",
         subtitle="Choose GEMMA3 or MISTRAL7B",
         value=EnumParameterDescriptor(
@@ -129,9 +150,31 @@ def create_crime_analysis_task_schema() -> TaskSchema:
         ),
     )
 
+    prompt_schema = ParameterSchema(
+        key="usecase3",
+        label="Custom prompt for message analysing",
+        subtitle="Enter a custom prompt to analyse your input conversation(s)",
+        value=TextParameterDescriptor(default=""),
+    )
+
+    usecase_schema = ParameterSchema(
+        key="usecase",
+        label="Usecases of the message analyser",
+        subtitle="",
+        value=EnumParameterDescriptor(
+            enum_vals=[EnumVal(key=mt.value, label=mt.name) for mt in Usecases],
+            default=Usecases.Custom_prompt_analysis.value,
+        ),
+    )
+
     return TaskSchema(
         inputs=[input_schema, output_schema],  # Only input is the CSV file
-        parameters=[elements_of_crime_schema, model_schema],  # Parameters for analysis
+        parameters=[
+            model_schema,
+            usecase_schema,
+            output_type,
+            prompt_schema,
+        ],  # Parameters for analysis
     )
 
 
@@ -145,6 +188,161 @@ server.add_app_metadata(
 )
 
 
+def build_prompt(conversation: str, use_case: str, custom_prompt: str = None) -> str:
+    """.
+    Build the prompt based on the use case and provided conversation.
+
+    Args:
+        conversation (str): The conversation text in [Message i] Name: Content format.
+        use_case (int): 1 for Actus Reus, 2 for Mens Rea, 3 for Custom Prompt.
+        custom_prompt (str, optional): The user-defined prompt for use case 3.
+
+    Returns:
+        str: Final prompt ready for model input.
+    """
+
+    if use_case == "1":
+        crime_element = "Actus Reus"
+        definition = """**Definitions:**
+
+        * **Actus Reus (Guilty Act):** This refers to the physical act of committing a crime. It's the tangible, observable action that constitutes the criminal offense."""
+        no_element_response = (
+            "No. There is no element of Actus Reus in the conversation."
+        )
+        gold_example = """
+        GOLD EXAMPLE:
+
+        Conversation:
+        [Message 1] Liam: I smashed the window and climbed inside.
+        [Message 2] Rachel: I grabbed the jewelry and ran out.
+        [Message 3] Emily: Did you see the new bakery opening downtown?
+
+        Expected Output:
+        Yes. Evidence:
+        Actus Reus:
+        [Message 1 - Name]: I smashed the window and climbed inside.
+        [Message 2 - Name]: I grabbed the jewelry and ran out.
+        """
+
+    elif use_case == "2":
+        crime_element = "Mens Rea"
+        definition = """* **Mens Rea (Guilty Mind):** This refers to the mental state of the perpetrator at the time the crime was committed. It encompasses the intention, knowledge, or recklessness that the person had when performing the act. In essence, it's about proving that the person knew what they were doing was wrong."""
+        no_element_response = "No. There is no element of Mens Rea in the conversation."
+        gold_example = """
+        GOLD EXAMPLE:
+
+        Conversation:
+        [Message 1] Liam: We should plan the robbery carefully.
+        [Message 2] Rachel: I'll study the security system tonight.
+        [Message 3] Emily: Are you coming to the party tomorrow?
+
+        Expected Output:
+        Yes. Evidence:
+        Mens Rea:
+        [Message 1 - Name]: We should plan the robbery carefully.
+        [Message 2 - Name]: I'll study the security system tonight.
+        """
+
+    elif use_case == "3":
+        crime_element = custom_prompt if custom_prompt else "Relevant Messages"
+        definition = ""
+        no_element_response = (
+            "No. There is no message that matches the prompt in the given conversation."
+        )
+        gold_example = """
+        GOLD EXAMPLE:
+
+        USER INSTRUCTION:
+        Find messages showing distrust or suspicion.
+
+        Conversation:
+        [Message 1] Liam: Are you sure this plan will work?
+        [Message 2] Rachel: I don't trust him with the money.
+        [Message 3] Emily: Can't wait for the vacation next week!
+
+        Expected Output:
+        Yes. Evidence:
+        Distrust or Suspicion:
+        [Message 1 - Name]: Are you sure this plan will work?
+        [Message 2 - Name]: I don't trust him with the money.
+        """
+    else:
+        raise ValueError(
+            f"Invalid use_case: {use_case}. Must be 1 (Actus Reus), 2 (Mens Rea), or 3 (Custom Prompt)."
+        )
+
+    prompt = f"""
+    You are a forensic conversation analyst specializing in detecting **{crime_element}** from chat conversations.
+
+    Your job is to carefully read the conversation and extract only the messages that match the definition of {crime_element}.
+    {definition}
+    ---
+
+    DO NOT:
+    - Do NOT paraphrase, summarize, or explain.
+    - Do NOT guess or assume hidden meanings.
+    - Do NOT include observations, interpretations, or conclusions.
+    - ONLY output if there is clear evidence matching {crime_element}.
+
+    ---
+
+    STRICT OUTPUT FORMAT:
+    Yes. Evidence:
+    {crime_element}:
+    [Message 1 - Name]: <exact message text>
+    [Message 2 - Name]: <exact message text>
+
+    If no relevant messages are found, output exactly:
+    {no_element_response}
+
+    ---
+
+    INCORRECT FORMATS (DO NOT DO THIS):
+    - {crime_element}: They probably meant something criminal.
+    - {crime_element}: Someone sounded suspicious.
+    - Any summaries, bullet points, or assumptions.
+
+    {gold_example}
+
+    ---
+
+    Now analyze the following conversation:
+
+    {conversation}
+
+    ---
+    Extract your output below:
+    """
+
+    return prompt
+
+
+def analyse(model_name, list_of_conversations, usecase, custom_prompt="") -> list:
+    """
+    Process the DataFrame using the inference engine to extract criminal activities,
+    then write the results to a CSV file in the given results directory.
+
+    :param df: The input DataFrame with a 'conversation' column.
+    :param crime_elements: A string of comma-separated crime elements (e.g., "Actus Reus,Mens Rea").
+    :param results_dir: The directory where the output CSV should be saved.
+    :return: The Path to the created CSV file.
+    """
+    engine = get_inference_engine(model_name)
+
+    list_of_raw_outputs = []
+
+    for i in range(len(list_of_conversations)):
+        logger.info(f"Processing conversation {i+1}/{len(list_of_conversations)}")
+        print(f"Processing conversation {i+1}/{len(list_of_conversations)}")
+        prompt = build_prompt(list_of_conversations[i], usecase, custom_prompt)
+        model_raw_output = engine.predict(prompt)
+        list_of_raw_outputs.append(model_raw_output)
+        logger.info(f"Completed conversation {i+1}")
+        print(f"Completed conversation {i+1}")
+
+    return list_of_raw_outputs
+
+
 class MistralOllamaInference:
     """
     Inference engine using Ollama with Mistral 7B for text generation
@@ -153,7 +351,7 @@ class MistralOllamaInference:
     def __init__(self, model_name="mistral:7b-instruct"):
         self.model_name = model_name
 
-    def generate_text(self, prompt: str) -> str:
+    def predict(self, prompt: str) -> str:
         try:
             ensure_model_exists("mistral:7b-instruct")
             logger.info("Prompt: ", prompt)
@@ -165,120 +363,6 @@ class MistralOllamaInference:
             logger.error(f"Ollama generation error: {str(e)}")
             return f"Error: {str(e)}"
 
-    def extract_criminal_activity(
-        self, conversation: str, crime_elements_str: str
-    ) -> str:
-        """
-        Extracts specified crime elements from a conversation using Ollama (Mistral).
-        Ensures structured output only — no summaries, no interpretations.
-        """
-
-        crime_elements = [
-            elem.strip() for elem in crime_elements_str.split(",") if elem.strip()
-        ]
-
-        gold_examples = """
-        Mens Rea:
-        {Message Number: 31, Speaker: Marcus, content: "Definitely didn't intend any harm to 5. Corrections Officer."}
-        {Message Number: 79, Speaker: Liam, content: "Maybe Marcus is just trying to shift the blame since he and 5. Corrections Officer argued about art."}
-
-        Actus Reus:
-        {Message Number: 48, Speaker: Marcus, content: "Just... some guys moving stuff. Quickly."}
-        {Message Number: 70, Speaker: Marcus, content: "I'll handle the cleanup. Just… drop it."}
-        """
-
-        prompt = f"""
-        You are a forensic conversation analyst. Your job is to extract ONLY the following crime elements from the conversation:
-
-        CRIME ELEMENTS TO EXTRACT: {', '.join(crime_elements)}
-
-        ---
-
-        🧠 DO NOT:
-        - Do NOT paraphrase, summarize, or explain.
-        - Do NOT include bullets or markdown.
-        - Do NOT include observations or conclusions.
-        - Do NOT output if you're unsure — just leave that element blank.
-        - If no message fits, return NOTHING.
-
-        ---
-
-        ✅ OUTPUT FORMAT:
-        [List only the requested crime elements.]
-
-        Mens Rea:
-        {{Message Number: <num>, Speaker: <name>, content: "<exact message text>"}}
-
-        Actus Reus:
-        {{Message Number: <num>, Speaker: <name>, content: "<exact message text>"}}
-
-        ❌ INCORRECT FORMATS:
-        - Mens Rea: They sounded guilty.
-        - Actus Reus: Someone did something illegal.
-
-        ---
-
-        📌 EXAMPLE:
-        {gold_examples}
-
-        ---
-
-        Now analyze the following conversation:
-
-        {conversation}
-
-        ---
-
-        EXTRACTED CRIMINAL ELEMENTS:
-        """
-
-        return self.generate_text(prompt)
-
-    def parse_results_grouped(
-        self, model_output: str, conversation_id: int, chunk_id: int
-    ) -> Dict[str, List[Dict]]:
-        """
-        Parses the model output and returns a dictionary grouping messages by crime element.
-        """
-        grouped_results = defaultdict(list)
-        current_crime_element = None
-
-        for line in model_output.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-
-            # Detect crime element section
-            crime_element_match = re.match(
-                r"^(Mens Rea|Actus Reus|Concurrence|Causation|Attempt|Complicity/Conspiracy|Obstruction of Justice|Extenuating Circumstances):$",
-                line,
-            )
-            if crime_element_match:
-                current_crime_element = crime_element_match.group(1)
-                continue
-
-            # Match structured message line
-            message_match = re.match(
-                r"\{Message Number:\s*(\d+),\s*Speaker:\s*(.*?),\s*content:\s*\"(.*?)\"\}",
-                line,
-            )
-            if message_match and current_crime_element:
-                message_number = int(message_match.group(1))
-                speaker = message_match.group(2).strip()
-                content = message_match.group(3).strip()
-
-                grouped_results[current_crime_element].append(
-                    {
-                        "conversation_id": conversation_id,
-                        "chunk_id": chunk_id,
-                        "message_number": message_number,
-                        "speaker": speaker,
-                        "message": content,
-                    }
-                )
-
-        return dict(grouped_results)
-
 
 class GemmaOllamaInference:
     """
@@ -288,7 +372,7 @@ class GemmaOllamaInference:
     def __init__(self, model_name="gemma3:12b"):
         self.model_name = model_name
 
-    def generate_text(self, prompt: str) -> str:
+    def predict(self, prompt: str) -> str:
         try:
             print(prompt)
             response = ollama.chat(
@@ -298,183 +382,6 @@ class GemmaOllamaInference:
         except Exception as e:
             # logger.error(f"Ollama generation error: {str(e)}")
             return f"Error: {str(e)}"
-
-    def extract_criminal_activity(
-        self, conversation: str, crime_elements_str: str
-    ) -> str:
-        """
-        Extracts specified crime elements from a conversation using Ollama (Mistral).
-        Ensures structured output only — no summaries, no interpretations.
-        """
-
-        crime_elements = [
-            elem.strip() for elem in crime_elements_str.split(",") if elem.strip()
-        ]
-
-        gold_examples = """
-        Mens Rea:
-        {Message Number: 31, Speaker: Marcus, content: "Definitely didn't intend any harm to 5. Corrections Officer."}
-        {Message Number: 79, Speaker: Liam, content: "Maybe Marcus is just trying to shift the blame since he and 5. Corrections Officer argued about art."}
-
-        Actus Reus:
-        {Message Number: 48, Speaker: Marcus, content: "Just... some guys moving stuff. Quickly."}
-        {Message Number: 70, Speaker: Marcus, content: "I'll handle the cleanup. Just… drop it."}
-        """
-
-        prompt = f"""
-        You are a forensic conversation analyst. Your job is to extract ONLY the following crime elements from the conversation:
-
-        CRIME ELEMENTS TO EXTRACT: {', '.join(crime_elements)}
-
-        ---
-
-        🧠 DO NOT:
-        - Do NOT paraphrase, summarize, or explain.
-        - Do NOT include bullets or markdown.
-        - Do NOT include observations or conclusions.
-        - Do NOT output if you're unsure — just leave that element blank.
-        - If no message fits, return NOTHING.
-
-        ---
-
-        ✅ OUTPUT FORMAT:
-        [List only the requested crime elements.]
-
-        Mens Rea:
-        {{Message Number: <num>, Speaker: <name>, content: "<exact message text>"}}
-
-        Actus Reus:
-        {{Message Number: <num>, Speaker: <name>, content: "<exact message text>"}}
-
-        ❌ INCORRECT FORMATS:
-        - Mens Rea: They sounded guilty.
-        - Actus Reus: Someone did something illegal.
-
-        ---
-
-        📌 EXAMPLE:
-        {gold_examples}
-
-        ---
-
-        Now analyze the following conversation:
-
-        {conversation}
-
-        ---
-
-        EXTRACTED CRIMINAL ELEMENTS:
-        """
-
-        return self.generate_text(prompt)
-
-    def parse_results_grouped(
-        self, model_output: str, conversation_id: int, chunk_id: int
-    ) -> Dict[str, List[Dict]]:
-        """
-        Parses the model output and returns a dictionary grouping messages by crime element.
-        """
-        grouped_results = defaultdict(list)
-        current_crime_element = None
-
-        for line in model_output.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-
-            # Detect crime element section
-            crime_element_match = re.match(
-                r"^(Mens Rea|Actus Reus|Concurrence|Causation|Attempt|Complicity/Conspiracy|Obstruction of Justice|Extenuating Circumstances):$",
-                line,
-            )
-            if crime_element_match:
-                current_crime_element = crime_element_match.group(1)
-                continue
-
-            # Match structured message line
-            message_match = re.match(
-                r"\{Message Number:\s*(\d+),\s*Speaker:\s*(.*?),\s*content:\s*\"(.*?)\"\}",
-                line,
-            )
-            if message_match and current_crime_element:
-                message_number = int(message_match.group(1))
-                speaker = message_match.group(2).strip()
-                content = message_match.group(3).strip()
-
-                grouped_results[current_crime_element].append(
-                    {
-                        "conversation_id": conversation_id,
-                        "chunk_id": chunk_id,
-                        "message_number": message_number,
-                        "speaker": speaker,
-                        "message": content,
-                    }
-                )
-
-        return dict(grouped_results)
-
-
-def analyse(
-    df: pd.DataFrame, crime_elements: str, model_type: str, results_dir: Path
-) -> Path:
-    """
-    Process the DataFrame using the inference engine to extract criminal activities,
-    then write the results to a CSV file in the given results directory.
-
-    :param df: The input DataFrame with a 'conversation' column.
-    :param crime_elements: A string of comma-separated crime elements (e.g., "Actus Reus,Mens Rea").
-    :param results_dir: The directory where the output CSV should be saved.
-    :return: The Path to the created CSV file.
-    """
-    engine = get_inference_engine(model_type)
-    results = []
-
-    for i, row in df.iterrows():
-        conversation = row["conversation"]
-        logger.info(f"Processing conversation {i+1}/{len(df)}")
-
-        # Split the conversation into messages and then into chunks (of up to 30 messages).
-        messages = conversation.strip().split("\n")
-        chunks = [messages[k : k + 30] for k in range(0, len(messages), 30)]
-
-        for j, chunk in enumerate(chunks):
-            chunk_text = "\n".join(chunk)
-            raw_output = engine.extract_criminal_activity(chunk_text, crime_elements)
-            logger.info(f"Raw output: {raw_output}")
-
-            grouped_result = engine.parse_results_grouped(
-                raw_output, conversation_id=i + 1, chunk_id=j + 1
-            )
-            for crime_element, msg_list in grouped_result.items():
-                for res in msg_list:
-                    res["crime_element"] = crime_element
-                    results.append(res)
-
-        logger.info(
-            f"Completed conversation {i+1}, found {len(results)} relevant messages"
-        )
-
-    # Ensure the results directory exists.
-    results_dir.mkdir(parents=True, exist_ok=True)
-    output_file = results_dir / "predicted_result.csv"
-
-    # Write the extracted results to CSV.
-    with open(output_file, "w", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=[
-                "conversation_id",
-                "chunk_id",
-                "message_number",
-                "speaker",
-                "message",
-                "crime_element",
-            ],
-        )
-        writer.writeheader()
-        writer.writerows(results)
-
-    return output_file
 
 
 def analyze_conversations(
@@ -489,75 +396,33 @@ def analyze_conversations(
     RESULTS_DIR = Path(inputs["output_file"].path)
 
     try:
-        # Get analysis parameters.
-        crime_elements = parameters.get("elements_of_crime", "Actus Reus,Mens Rea")
 
-        # Retrieve the file input object.
-        file_input = inputs["input_file"]
-        logger.info(f"Input file object type: {type(file_input)}")
-        logger.info(f"Input file object attributes: {dir(file_input)}")
+        handler = InputsHandler(inputs)
 
-        # Create a temporary file to work with.
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
-        temp_path = temp_file.name
-        logger.info(f"Created temporary file: {temp_path}")
+        list_of_conversations = handler.load_conversations()
 
-        # Extract file content into the temporary file.
-        try:
-            if hasattr(file_input, "file"):
-                logger.info("Using 'file' attribute")
-                content = file_input.file.read()
-                temp_file.write(content)
-                temp_file.flush()
-            elif hasattr(file_input, "path"):
-                logger.info(f"Using 'path' attribute: {file_input.path}")
-                shutil.copyfile(file_input.path, temp_path)
-            elif hasattr(file_input, "read"):
-                logger.info("Using 'read' method")
-                content = file_input.read()
-                temp_file.write(content)
-                temp_file.flush()
-            else:
-                from flask import request
+        usecase = parameters.get("usecase", Usecases.Actus_Reus_analysis.value)
+        output_dir = inputs["output_file"]
+        model_name = parameters.get("model_name", ModelType.GEMMA3.value)
+        output_type = parameters.get("output_type", OutputType.csv.value)
+        prompt = parameters.get("usecase3", "")
+        if prompt == "empty":
+            prompt = ""
+        print("completed loading")
 
-                if hasattr(request, "files") and "input_file" in request.files:
-                    logger.info("Using Flask request.files")
-                    file = request.files["input_file"]
-                    file.save(temp_path)
-                else:
-                    raise ValueError(
-                        "Could not extract file content from FileInput object"
-                    )
+        list_of_raw_outputs = analyse(
+            model_name, list_of_conversations, usecase, prompt
+        )
+        outputs = OutputParser(output_dir, output_type)
+        outputs.process_raw_output(list_of_raw_outputs)
+        logger.info(f"Analysis completed in {time.time() - start_time:.2f}s.")
 
-            # Close the temporary file to ensure all data is written.
-            temp_file.close()
-            logger.info(f"Reading CSV from temporary file: {temp_path}")
-            df = pd.read_csv(temp_path)
-        except Exception as e:
-            logger.error(f"Error extracting file content: {str(e)}")
-            raise ValueError(f"Could not process file: {str(e)}")
-
-        if "conversation" not in df.columns:
-            raise ValueError("CSV file must contain a 'conversation' column")
-
-        raw_model_type = parameters.get("model_type", ModelType.MISTRAL7B.value).upper()
-
-        try:
-            model_type = ModelType(raw_model_type)
-        except ValueError:
-            raise ValueError(
-                f"model_type must be one of {[m.value for m in ModelType]}"
-            )
-
-        # Delegate the analysis and CSV creation to the helper function.
-        results_file = analyse(df, crime_elements, model_type, RESULTS_DIR)
-        logger.info(
-            f"Analysis completed in {time.time() - start_time:.2f}s. Results saved to {results_file}"
+        output_base = Path(output_dir.path) / "analysis_of_conversations"
+        file_response = FileResponse(
+            path=str(output_base), file_type=map_outputfiletype_FileType(output_type)
         )
 
-        return ResponseBody(
-            FileResponse(path=str(results_file), file_type=FileType.CSV)
-        )
+        return ResponseBody(file_response)
 
     except Exception as e:
         logger.error(f"Error analyzing conversations: {str(e)}")
@@ -583,44 +448,61 @@ def analyze_conversations(
 
 def cli_parser(arg: str) -> dict:
     """
-    Parse a single string argument into the input dictionary.
+    Parse a single string argument into the input dict.
 
-    Expected format: "input_file_path,output_directory_path"
+    Expected format:
+      "<in1.csv>;<in2.csv>;...,<output_dir>"
+
+    Returns:
+      {
+        "input_file": BatchFileInput(paths=[...]),
+        "output_file": DirectoryInput(path=...)
+      }
     """
-    parts = arg.split(",")
-    if len(parts) != 2:
-        raise ValueError(
-            "Expected a single argument with two comma-separated paths: "
-            "input_file_path,output_directory_path"
-        )
-    input_file_path = parts[0].strip()
-    output_directory_path = parts[1].strip()
+    try:
+        files_part, out_dir = arg.split(",", 1)
+    except ValueError:
+        raise ValueError("Expected: '<in1>;<in2>;... , <output_dir>'")
+    file_paths = [p.strip() for p in files_part.split(";") if p.strip()]
     return {
-        "input_file": FileInput(path=input_file_path),
-        "output_file": DirectoryInput(path=output_directory_path),
+        "input_file": BatchFileInput(paths=file_paths),
+        "output_file": DirectoryInput(path=out_dir.strip()),
     }
 
 
-# Define the CLI parser for parameters (optional).
 def param_parser(arg: str) -> dict:
+    """
+    Parse a single string argument into parameters.
 
-    tokens = [tok.strip() for tok in arg.split(",") if tok.strip()]
-    default_elements = "Actus Reus,Mens Rea"
-    default_model = ModelType.MISTRAL7B
+    Expected format:
+      "<model_name>,<output_type>,<usecase>,<custom_prompt?>"
 
-    if not tokens:
-        return {"elements_of_crime": default_elements, "model": default_model.value}
+    - model_name    e.g. GEMMA3 or MISTRAL7B
+    - output_type   csv | xlsx | txt | pdf
+    - usecase       1 | 2 | 3
+    - custom_prompt only required if usecase==3 (can contain commas)
 
-    last = tokens[-1].upper()
-    # check if last token is a valid ModelType
-    if last in (m.value for m in ModelType):
-        model = ModelType(last)
-        elements = ",".join(tokens[:-1]) or default_elements
-    else:
-        model = default_model
-        elements = ",".join(tokens)  # treat all as elements
-
-    return {"elements_of_crime": elements, "model": model.value}
+    Returns:
+      {
+        "model_name": ...,
+        "output_type": ...,
+        "usecase": ...,
+        "usecase3": ...,
+      }
+    """
+    parts = [p.strip() for p in arg.split(",", 3)]
+    if len(parts) < 3:
+        raise ValueError(
+            "Expected at least 3 tokens: '<model>,<out_type>,<usecase>[,<prompt>]'"
+        )
+    model_name, output_type, usecase = parts[:3]
+    custom = parts[3] if len(parts) == 4 else ""
+    return {
+        "model_name": model_name,
+        "output_type": output_type,
+        "usecase": usecase,
+        "usecase3": custom,
+    }
 
 
 server.add_ml_service(

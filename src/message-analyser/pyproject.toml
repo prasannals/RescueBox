@@ -17,6 +17,8 @@ ollama = "*"
 pandas = "*"
 scikit_learn = "*"
 torch = "*"
+pdfplumber = "*"
+fpdf = "*"
 
 
 [build-system]

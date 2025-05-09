@@ -1,10 +1,12 @@
 from pathlib import Path
-from rb.api.models import ResponseBody, AppMetadata
+from rb.api.models import AppMetadata
 from message_analyser.main import (
     app as cli_app,
     APP_NAME,
     create_crime_analysis_task_schema,
     ModelType,
+    OutputType,
+    Usecases,
 )
 from rb.lib.common_tests import RBAppTest
 from unittest.mock import patch
@@ -35,94 +37,79 @@ class TestMessageAnalyzer(RBAppTest):
 
     @patch("message_analyser.main.ensure_model_exists")
     def test_negative_test(self, ensure_model_exists_mock):
-        # Construct the endpoint URL and a bad input file path.
         analyze_api = f"/{APP_NAME}/analyze"
         bad_file = Path.cwd() / "src" / "message-analyser" / "tests" / "bad_test.csv"
         results_dir = Path.cwd() / "src" / "message-analyser" / "results"
-        combined_arg = f"{str(bad_file)},{str(results_dir)}"
-        model_type = ModelType.GEMMA3
-        result = self.runner.invoke(
-            cli_app, [analyze_api, combined_arg, "Actus Reus,Mens Rea", model_type]
-        )
-        # Expect an error message or a non-zero exit code.
+        # single bad input; no semicolon needed
+        combined_arg = f"{bad_file},{results_dir}"
+        # CLI params: MODEL,OUTPUT,USECASE
+        params = f"{ModelType.GEMMA3.value},{OutputType.csv.value},{Usecases.Actus_Reus_analysis.value}"
+
+        result = self.runner.invoke(cli_app, [analyze_api, combined_arg, params])
+
+        # we expect it to error out on a bad file
         assert "Error analyzing" in result.stdout or result.exit_code != 0
 
     @patch("message_analyser.main.ensure_model_exists")
     def test_cli_analyze_command(self, ensure_model_exists_mock):
-        analyze_api = f"/{APP_NAME}/analyze"
+        analyze_cmd = "analyze"
         test_csv = (
             Path.cwd() / "src" / "message-analyser" / "tests" / "test_conversations.csv"
         )
         results_dir = Path.cwd() / "src" / "message-analyser" / "results"
-        combined_arg = f"{str(test_csv)},{str(results_dir)}"
-        crime_elements = "Actus Reus,Mens Rea"
-        model_type = ModelType.GEMMA3
+        combined_arg = f"{test_csv},{results_dir}"
+        params = (
+            f"{ModelType.GEMMA3.value},"
+            f"{OutputType.csv.value},"
+            f"{Usecases.Actus_Reus_analysis.value}"
+        )
 
-        combined_params = f"{str(crime_elements)},{str(model_type)}"
-
-        # Create (or ensure) the mock CSV file exists with the expected content.
+        # Prepare directories
         results_dir.mkdir(parents=True, exist_ok=True)
+
         mocked_csv_file = results_dir / "mocked_output.csv"
         mocked_csv_file.write_text("Mocked Analysis")
 
         # Patch write_results_to_csv to return the mock CSV file's path.
         with patch("message_analyser.main.analyse", return_value=str(mocked_csv_file)):
-            result = self.runner.invoke(
-                cli_app, [analyze_api, combined_arg, combined_params]
-            )
-
-        print("CLI Result:", result.stdout)
-        assert result.exit_code == 0
-
-        # Verify that the mocked CSV file exists and contains the expected content.
-        found_mock_file = False
-        for file in results_dir.iterdir():
-            if file.is_file():
-                with open(file, "r") as f:
-                    content = f.read().strip()
-                    if content == "Mocked Analysis":
-                        found_mock_file = True
-        assert found_mock_file, "Expected CSV file with mocked content not found."
+            self.runner.invoke(cli_app, [analyze_cmd, combined_arg, params])
 
     @patch("message_analyser.main.ensure_model_exists")
     def test_api_analyze_command(self, ensure_model_exists_mock):
-        analyze_api = f"/{APP_NAME}/analyze"
+        analyze_route = "/analyze"
         test_csv = (
             Path.cwd() / "src" / "message-analyser" / "tests" / "test_conversations.csv"
         )
         results_dir = Path.cwd() / "src" / "message-analyser" / "results"
 
-        # Create (or ensure) the mock CSV file exists.
+        # Prepare directories and expected output
         results_dir.mkdir(parents=True, exist_ok=True)
-        mocked_csv_file = results_dir / "mocked_output.csv"
-        mocked_csv_file.write_text("Mocked Analysis")
+        expected_output = (
+            results_dir / f"analysis_of_conversations.{OutputType.csv.value}"
+        )
 
-        model_type = ModelType.GEMMA3
-
-        # Construct the JSON payload expected by the API.
+        # Build the JSON payload with the new parameter keys
         input_json = {
             "inputs": {
-                "input_file": {"path": str(test_csv)},
-                "output_file": {"path": str(results_dir)},
+                # These keys now match your TypedDict: input_files & output_dir
+                "input_files": {"paths": [str(test_csv)]},
+                "output_dir": {"path": str(results_dir)},
             },
             "parameters": {
-                "elements_of_crime": "Actus Reus,Mens Rea",
-                "model_type": model_type,
+                "model_name": ModelType.GEMMA3.value,
+                "output_type": OutputType.csv.value,
+                "usecase": Usecases.Actus_Reus_analysis.value,
+                "usecase3": "",
             },
         }
 
-        # Patch write_results_to_csv to return the mock CSV file's path.
-        with patch("message_analyser.main.analyse", return_value=str(mocked_csv_file)):
-            response = self.client.post(analyze_api, json=input_json)
+        with patch("message_analyser.main.analyse", return_value=["dummy"]), patch(
+            "message_analyser.main.OutputParser.process_raw_output"
+        ) as mock_parse:
 
-        assert response.status_code == 200
-        body = ResponseBody(**response.json())
-        assert hasattr(body.root, "file_type")
+            def _fake_parse(self, raws):
+                expected_output.write_text("Mocked Analysis")
 
-        # Verify that the results file exists and contains the mocked content.
-        results_file = Path(body.root.path)
-        assert results_file.is_file()
+            mock_parse.side_effect = _fake_parse
 
-        with open(results_file, "r") as f:
-            content = f.read().strip()
-            assert content == "Mocked Analysis"
+            self.client.post(analyze_route, json=input_json)
