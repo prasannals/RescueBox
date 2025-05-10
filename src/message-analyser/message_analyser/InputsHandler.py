@@ -9,7 +9,6 @@ from rb.api.models import (
     BatchFileInput,
 )
 import re
-from flask import request
 
 logger = logging.getLogger("file-loader")
 
@@ -53,10 +52,6 @@ class InputsHandler:
             elif hasattr(file_input, "path"):
                 logger.info(f"Copying from disk path: {file_input.path}")
                 shutil.copyfile(file_input.path, temp_path)
-            elif hasattr(request, "files") and "input_file" in request.files:
-                logger.info("Reading from Flask request.files['input_file']")
-                uploaded = request.files["input_file"]
-                uploaded.save(temp_path)
             else:
                 raise ValueError("Cannot extract file content")
         finally:

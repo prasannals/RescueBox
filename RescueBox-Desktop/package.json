@@ -33,7 +33,7 @@
   "main": "./.erb/dll/main.bundle.dev.js",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
-    "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
+    "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true node -r ts-node/register ./node_modules/webpack-cli/bin/cli.js --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "build:models": "npx openapicmd typegen ./src/shared/openapi.yaml > ./src/shared/generated_models.ts",
@@ -137,7 +137,7 @@
     "react-paginate": "^8.2.0",
     "react-player": "^2.16.0",
     "react-router-dom": "^6.16.0",
-    "react-syntax-highlighter": "^15.6.1",
+    "react-syntax-highlighter": "^5.8.0",
     "rehype-external-links": "^3.0.0",
     "remark-gfm": "^4.0.0",
     "swr": "^2.2.5",
@@ -252,7 +252,9 @@
           "universal"
         ]
       },
-      "additionalArguments": ["-s -"],
+      "additionalArguments": [
+        "-s -"
+      ],
       "type": "distribution",
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",

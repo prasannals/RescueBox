@@ -33,7 +33,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("gemma-server")
 
-APP_NAME = "message-analyzer"
+APP_NAME = "message-analyser"
 
 # Initialize Flask-ML Server
 server = MLService(APP_NAME)
