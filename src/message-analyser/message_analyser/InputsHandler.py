@@ -4,11 +4,8 @@ import shutil
 import pdfplumber
 import pandas as pd
 from pathlib import Path
-from rb.api.models import (
-    FileInput,
-    BatchFileInput,
-)
 import re
+import os
 
 logger = logging.getLogger("file-loader")
 
@@ -21,12 +18,24 @@ class InputsHandler:
 
     def __init__(self, inputs: dict):
         self.inputs = inputs
-        if "input_files" in inputs:
-            batch: BatchFileInput = inputs["input_files"]
+
+        if "input_file" in inputs:
+            # Handle different types of input
+            if hasattr(inputs["input_file"], "files"):
+                # BatchFileInput object
+                self.file_inputs = inputs["input_file"].files
+            elif (
+                isinstance(inputs["input_file"], dict)
+                and "files" in inputs["input_file"]
+            ):
+                # Dictionary with files key
+                self.file_inputs = inputs["input_file"]["files"]
+            else:
+                # Single file input
+                self.file_inputs = [inputs["input_file"]]
+        elif "input_files" in inputs:
+            batch = inputs["input_files"]
             self.file_inputs = batch.files
-        elif "input_file" in inputs:
-            single: FileInput = inputs["input_file"]
-            self.file_inputs = [single]
         else:
             raise KeyError("Expected 'input_files' or 'input_file' in inputs")
 
@@ -34,32 +43,48 @@ class InputsHandler:
         # figure out the original filename or path so we can keep its suffix
         if hasattr(file_input, "path"):
             original = file_input.path
+        elif isinstance(file_input, dict) and "path" in file_input:
+            original = file_input["path"]
         elif hasattr(file_input, "filename"):
             original = file_input.filename
         else:
+            logger.error("No path or filename found in file input")
             original = ""
+
         ext = Path(original).suffix
 
         # create the temp file *with* the right suffix
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
         temp_path = Path(temp.name)
+
         try:
             if hasattr(file_input, "file"):
-                logger.info("Reading from file_input.file")
                 content = file_input.file.read()
                 temp.write(content)
                 temp.flush()
             elif hasattr(file_input, "path"):
-                logger.info(f"Copying from disk path: {file_input.path}")
-                shutil.copyfile(file_input.path, temp_path)
+                path_str = str(file_input.path)
+                if os.path.exists(path_str):
+                    shutil.copyfile(path_str, temp_path)
+                else:
+                    logger.error(f"Path does not exist: {path_str}")
+                    raise ValueError(f"File not found: {path_str}")
+            elif isinstance(file_input, dict) and "path" in file_input:
+                path_str = file_input["path"]
+                if os.path.exists(path_str):
+                    shutil.copyfile(path_str, temp_path)
+                else:
+                    logger.error(f"Path does not exist: {path_str}")
+                    raise ValueError(f"File not found: {path_str}")
             else:
+                logger.error("Cannot extract content from file input")
                 raise ValueError("Cannot extract file content")
         finally:
             temp.close()
+
         return temp_path
 
     def _extract_conversations(self, path: Path) -> list:
-
         ext = path.suffix.lower()
 
         if ext == ".csv":
@@ -70,11 +95,16 @@ class InputsHandler:
             df = None
 
         if df is not None:
-            if df.shape[1] > 1:
-                logger.warning(
-                    f"Multiple columns in {path.name}, using first column only"
-                )
-            col = df.iloc[:, 0]
+            # Check if 'conversation' column exists
+            if "conversation" in df.columns:
+                col = df["conversation"]
+            else:
+                # Fallback to first column with warning
+                if df.shape[1] > 1:
+                    logger.warning(
+                        f"Multiple columns in {path.name}, using first column only"
+                    )
+                col = df.iloc[:, 0]
             return col.dropna().astype(str).tolist()
 
         if ext == ".txt":
@@ -103,7 +133,6 @@ class InputsHandler:
             temp_path = self._save_input_to_tempfile(file_input)
 
             try:
-                logger.info(f"Extracting from file: {temp_path}")
                 conversations = self._extract_conversations(temp_path)
                 all_conversations.extend(conversations)
             except Exception as e:

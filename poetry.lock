@@ -543,7 +543,7 @@ version = "0.115.12"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
-groups = ["api"]
+groups = ["main", "api"]
 files = [
     {file = "fastapi-0.115.12-py3-none-any.whl", hash = "sha256:e94613d6c05e27be7ffebdd6ea5f388112e5e430c8f7d6494a9d1d88d43e814d"},
     {file = "fastapi-0.115.12.tar.gz", hash = "sha256:1e2c2a2646905f9e83d32f04a3f86aff4a286669c6c950ca95b5fd68c2602681"},
@@ -888,7 +888,7 @@ version = "1.15.6"
 description = "Small library to dynamically create python functions."
 optional = false
 python-versions = "*"
-groups = ["api"]
+groups = ["main", "api"]
 files = [
     {file = "makefun-1.15.6-py2.py3-none-any.whl", hash = "sha256:e69b870f0bb60304765b1e3db576aaecf2f9b3e5105afe8cfeff8f2afe6ad067"},
     {file = "makefun-1.15.6.tar.gz", hash = "sha256:26bc63442a6182fb75efed8b51741dd2d1db2f176bec8c64e20a586256b8f149"},
@@ -1007,17 +1007,20 @@ name = "message-analyser"
 version = "0.1.0"
 description = "Analyse criminal activity in conversations"
 optional = false
-python-versions = "*"
+python-versions = ">=3.11,<3.13"
 groups = ["main"]
 files = []
 develop = true
 
 [package.dependencies]
+fastapi = "*"
 fpdf = "*"
 numpy = "*"
 ollama = "*"
 pandas = "*"
 pdfplumber = "*"
+rb-api = {path = "../rb-api", develop = true}
+rb-lib = {path = "../rb-lib", develop = true}
 scikit_learn = "*"
 torch = "*"
 
@@ -2219,7 +2222,7 @@ version = "0.1.0"
 description = ""
 optional = false
 python-versions = "^3.11"
-groups = ["api"]
+groups = ["main", "api"]
 files = []
 develop = true
 
@@ -2625,7 +2628,7 @@ version = "0.46.2"
 description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.9"
-groups = ["api"]
+groups = ["main", "api"]
 files = [
     {file = "starlette-0.46.2-py3-none-any.whl", hash = "sha256:595633ce89f8ffa71a015caed34a5b2dc1c0cdb3f0f1fbd1e69339cf2abeec35"},
     {file = "starlette-0.46.2.tar.gz", hash = "sha256:7f7361f34eed179294600af672f565727419830b54b7b084efe44bb82d2fccd5"},
@@ -2914,7 +2917,7 @@ version = "0.32.1"
 description = "The lightning-fast ASGI server."
 optional = false
 python-versions = ">=3.8"
-groups = ["api"]
+groups = ["main", "api"]
 files = [
     {file = "uvicorn-0.32.1-py3-none-any.whl", hash = "sha256:82ad92fd58da0d12af7482ecdb5f2470a04c9c9a53ced65b9bbb4a205377602e"},
     {file = "uvicorn-0.32.1.tar.gz", hash = "sha256:ee9519c246a72b1c084cea8d3b44ed6026e78a4a309cbedae9c37e4cb9fbb175"},

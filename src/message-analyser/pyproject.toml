@@ -11,7 +11,7 @@ message_analyser = "message_analyser.main:app"
 
 
 [tool.poetry.dependencies]
-python = "*"
+python = ">=3.11,<3.13"
 numpy = "*"
 ollama = "*"
 pandas = "*"
@@ -19,6 +19,9 @@ scikit_learn = "*"
 torch = "*"
 pdfplumber = "*"
 fpdf = "*"
+fastapi = "*"
+rb-lib = {path = "../rb-lib", develop = true}
+rb-api = {path = "../rb-api", develop = true}
 
 
 [build-system]

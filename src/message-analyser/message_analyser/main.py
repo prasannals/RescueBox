@@ -23,8 +23,10 @@ from rb.api.models import (
 import ollama
 import typer
 import traceback
-from .InputsHandler import InputsHandler
-from .OutputParser import OutputParser
+from message_analyser.InputsHandler import InputsHandler
+from message_analyser.OutputParser import OutputParser
+
+project_root = Path(__file__).resolve().parent.parent.parent.parent
 
 
 # Configure logging
@@ -354,7 +356,7 @@ class MistralOllamaInference:
     def predict(self, prompt: str) -> str:
         try:
             ensure_model_exists("mistral:7b-instruct")
-            logger.info("Prompt: ", prompt)
+            logger.info("Prompt: %s", prompt)
             response = ollama.chat(
                 model=self.model_name, messages=[{"role": "user", "content": prompt}]
             )
@@ -374,7 +376,7 @@ class GemmaOllamaInference:
 
     def predict(self, prompt: str) -> str:
         try:
-            print(prompt)
+            logger.info("Prompt: %s", prompt)
             response = ollama.chat(
                 model=self.model_name, messages=[{"role": "user", "content": prompt}]
             )
@@ -455,7 +457,7 @@ def cli_parser(arg: str) -> dict:
 
     Returns:
       {
-        "input_file": BatchFileInput(paths=[...]),
+        "input_file": BatchFileInput(files=[...]),
         "output_file": DirectoryInput(path=...)
       }
     """
@@ -463,10 +465,34 @@ def cli_parser(arg: str) -> dict:
         files_part, out_dir = arg.split(",", 1)
     except ValueError:
         raise ValueError("Expected: '<in1>;<in2>;... , <output_dir>'")
+
+    from pathlib import Path
+    from rb.api.models import FileInput
+
+    # Convert to absolute paths if not already
     file_paths = [p.strip() for p in files_part.split(";") if p.strip()]
+    abs_paths = []
+    for p in file_paths:
+        path = Path(p)
+        if not path.is_absolute():
+            # If the file doesn't exist as a relative path from CWD,
+            # try as relative path from project root
+            if not Path.cwd().joinpath(path).exists():
+                path = project_root.joinpath(path)
+            else:
+                path = Path.cwd().joinpath(path)
+        abs_paths.append(str(path))
+
+    # Log the paths for debugging
+    logger.info(f"Input files: {abs_paths}")
+    logger.info(f"Output directory: {out_dir}")
+
+    # Create FileInput objects with absolute paths
+    file_inputs = [FileInput(path=p) for p in abs_paths]
+
     return {
-        "input_file": BatchFileInput(paths=file_paths),
-        "output_file": DirectoryInput(path=out_dir.strip()),
+        "input_file": BatchFileInput(files=file_inputs),
+        "output_file": DirectoryInput(path=str(Path(out_dir).absolute())),
     }
 
 
