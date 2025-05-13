@@ -419,7 +419,8 @@ def analyze_conversations(
         outputs.process_raw_output(list_of_raw_outputs)
         logger.info(f"Analysis completed in {time.time() - start_time:.2f}s.")
 
-        output_base = Path(output_dir.path) / "analysis_of_conversations"
+        output_base = Path(output_dir.path) / f"analysis_of_conversations.{output_type}"
+        print(f"Results saved to: {output_base}\n")
         file_response = FileResponse(
             path=str(output_base), file_type=map_outputfiletype_FileType(output_type)
         )
