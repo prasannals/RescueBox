@@ -17,6 +17,13 @@ jobs:
       - name: Install ffmpeg and libfuse-for-ufdr
         run: sudo apt-get update && sudo apt-get install -y ffmpeg && sudo apt install fuse
 
+      - name: pull onnx model for deepfake
+        run: |
+          pip install gdown
+          mkdir src/deepfake-detection/deepfake_detection/onnx_models
+          gdown "1tFHTXCGy0hWRFH2H9MP9MpaBJvyHbW0u" --fuzzy -O src/deepfake-detection/deepfake_detection/onnx_models/bnext_M_dffd_model.onnx --continue
+          ls -l src/deepfake-detection/deepfake_detection/onnx_models
+          
       - name: Install Poetry and dependencies
         run: |
           pip install poetry
