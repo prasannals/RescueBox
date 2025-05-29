@@ -5,7 +5,7 @@
 
 <img align="right" width="200" src="./docs/icon.png" width="200" />
 
-RescueBox Desktop (RBox) is a self-contained binary offering a UI interface to a library of ML models for various forensic applications. To use RescueBox Desktop, start up a model application in the background adhering to the [FlaskML](https://umass-rescue.github.io/Flask-ML/materials/guides/examples) interface. Then, register the model application's IP Host address and port. You can now run the model by specifying its inputs on the UI and analyzing outputs when ready. RBox handles the rest: running the jobs, and interfacing with different ML models. Since RBox is aimed toward forensic analysts, it is designed to operate on local, or drive-mounted storage.
+RescueBox Desktop (RBox) is a self-contained binary offering a UI interface to a library of ML models for various forensic applications. To use RescueBox Desktop, start up a model application in the background adhering to the [Fastapi](https://github.com/UMass-Rescue/RescueBox/blob/main/flaskml_migration_steps.md) interface.  You can now run the model [server](https://github.com/UMass-Rescue/RescueBox/blob/main/run_server) and interact by specifying its inputs on the UI and analyzing outputs when ready. RBox handles the rest: running the jobs, and interfacing with different ML models. Since RBox is aimed toward forensic analysts, it is designed to operate on local, or drive-mounted storage.
 
 For a review of the project's goals, read [What is RescueBox Desktop?](./docs/what-is-rescuebox-desktop.md). For a view into how RBox-Desktop works, read the [architecture section](#architecture).
 
@@ -13,61 +13,52 @@ For a review of the project's goals, read [What is RescueBox Desktop?](./docs/wh
 
 ## Step 1: Download the Latest Release
 
-Get the latest release of the binary for your operating system (Windows, macOS and Linux) from the [release page](https://github.com/UMass-Rescue/RescueBox-Desktop/releases). For Linux, see [Additional Instructions for Linux](#additional-instructions-for-linux).
+Get the latest release of the binary for your operating system (Windows) from the [source](https://github.com/UMass-Rescue/RescueBox/tree/main/RescueBox-Desktop).
 
-## Step 2: Start a Flask-ML Compliant Model
+## Step 2: Start a Fastapi Compliant Model
 
-Download and install one of the [Flask-ML compliant models](https://umass-rescue.github.io/Flask-ML/materials/guides/examples), or [write your own!](https://umass-rescue.github.io/Flask-ML/materials/guides/getting-started)
+Download and run the [Fastapi](https://github.com/UMass-Rescue/RescueBox/wiki/Onboarding) model server.
 
-Run the model application, which should provide you with a URL to register with RBox.
+Run the model application server, which should provide you with a URL to RBox.
 
 ## Step 3: Using the App
-
-Launch the binary you downloaded in [step 1](#step-1-download-the-latest-release), and register the model application using the IP address and port.
+Launch the Rescuebox-Desktop icon or see below to launch in dev mode using npm start.
 
 You should now be able to see the model application in the app, and be able to run inference tasks on it!
 
 ![](./docs/ui-screenshot.png)
 
-## Additional Instructions for Linux
+## Additional Instructions for Mac
 
-To run the AppImage on Linux, we first need to add execution permission on the AppImage file.
 
-```bash
-chmod a+x RescueBox-Desktop-<version_number>.AppImage
+Might need these before `npm install`
+```
+### Upgrade node if your node version is less than 14. (check with `node -v`)
+brew install node@20
+echo 'export PATH="/usr/local/opt/node@20/bin:$PATH"' >> ~/.zshrc
+
+### Install python-setuptools since we're using python 3.12
+brew install python-setuptools
+### Or install it from https://pypi.org/project/setuptools/ into the python environment on your command line
 ```
 
-Then, some Additional steps may be required for Linux, depending on your distro. For Ubuntu, you will need to install the FUSE library.
-
-### Ubuntu >= 24.04
-
-```bash
-sudo add-apt-repository universe
-sudo apt install libfuse2t64
+9.  Install UI dependencies
+```
+cd RescueBox-Desktop
+npm install
 ```
 
-### Ubuntu <= 22.04
-
-```bash
-sudo add-apt-repository universe
-sudo apt install libfuse2
+10. Run UI
+```
+npm start
 ```
 
-At last, Run the AppImage with the "no-sandbox" option
-
-```bash
- ./RescueBox-Desktop-<version-number>.AppImage --no-sandbox
+You should see the UI show up after this. Connect to your server and go to the "Models" tab to run the models.
 ```
-
 # Development
 
 RescueBox Desktop is built using [Electron](https://www.electronjs.org/), [React](https://reactjs.org/), TypeScript, TailwindCSS, and SQlite (with Sequelize).
 
-RescueBox implments the "Flask-ML" protocol, which is a simple interface for running ML models. See [Flask-ML Protocol](./docs/FlaskML-Protocol-Sequence-Diagram.png).
-
-<p align="center">
-  <img src="./docs/FlaskML-Protocol-Sequence-Diagram.png" width="450" />
-</p>
 
 ## Prerequisites
 
@@ -78,7 +69,7 @@ RescueBox implments the "Flask-ML" protocol, which is a simple interface for run
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/UMass-Rescue/RescueBox-Desktop.git
+git clone https://github.com/UMass-Rescue/RescueBox.git
 cd RescueBox-Desktop
 npm install
 ```
@@ -98,14 +89,29 @@ npm start
 To package apps for the local platform:
 
 ```bash
-npm run package
+1 build the rescuebox.exe using the rescuebox.spec in RescueBox directory. ( see file for instructions)
+
+2 copy pre reqs to assets\rb_server : 
+winfsp-2.0.23075.msi , docs , demo files to run models
+
+3 copy these cmds to rb.bat and run it as one batch file
+rmdir /s /q assets\rb_server\dist
+move ../dist assets\rb_server
+cmd /c npm cache clean --force
+cmd /c npm cache verify
+cmd /c npm install
+cmd /c npm run postinstall
+cmd /c npm run build
+cmd /c npm run rebuild
+cmd /c npm exec electron-builder -- --win
 ```
+note : release\app\package.json contains the version number
+
+4 release\build\RescueBox-Desktop Setup 2.0.0.exe should get created
+ 
 
 ## Docs
 
 See electron-react's [docs and guides here](https://electron-react-boilerplate.js.org/docs/installation)
 
-[github-actions-status]: https://github.com/UMass-Rescue/RescueBox-Desktop/actions/workflows/test.yml/badge.svg?branch=main
-[github-actions-url]: https://github.com/UMass-Rescue/RescueBox-Desktop/actions/workflows/test.yml
-[github-tag-image]: https://img.shields.io/github/tag/UMass-Rescue/RescueBox-Desktop.svg?label=version
-[github-tag-url]: https://github.com/UMass-Rescue/RescueBox-Desktop/releases/latest
+

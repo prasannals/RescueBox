@@ -17,6 +17,7 @@ from rb.lib.utils import (
     ensure_ml_func_parameters_are_typed_dict,
 )
 
+
 logger = getLogger(__name__)
 
 
@@ -36,14 +37,14 @@ class EndpointDetails(EndpointDetailsNoSchema):
 
 class MLService(object):
     """
-    The MLService object is a wrapper class for the flask app object. It
+    The MLService object is a wrapper class for the app object. It
     provides a decorator for turning a machine learning prediction function
-    into a WebService on an applet.
+    into a rest api endpoint.
     """
 
     def __init__(self, name):
         """
-        Instantiates the MLService object as a wrapper for the Flask app.
+        Instantiates the MLService object as a wrapper for the app.
         """
         self.name = name
         self.app = typer.Typer()
@@ -54,7 +55,7 @@ class MLService(object):
         @self.app.command(f"/{self.name}/api/routes")
         def list_routes():
             """
-            Lists all the routes/endpoints available in the Flask app.
+            Lists all the routes/endpoints available in the app.
             """
             routes = [
                 SchemaAPIRoute(
