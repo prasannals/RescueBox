@@ -1,14 +1,15 @@
 import multiprocessing
 import os
 import sys
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from rb.api import routes
 
 app = FastAPI(
     title="RescueBoxAPI",
     summary="RescueBox is a set of tools for file system investigations.",
-    version="0.1.0",
+    version="2.0.0",
     debug=True,
     contact={
         "name": "Umass Amherst RescuBox Team",
@@ -20,6 +21,20 @@ app.mount(
     StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")),
     name="static",
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):  # fmt: skip
+    """response handler for all plugin input validation errors"""
+    error_msg = str(exc)
+    for e in exc.errors():
+        error_msg = e.get("msg")
+
+    raise HTTPException(  # pylint: disable=raise-missing-from
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail={"error": f"{error_msg}"},
+    )
+
 
 app.include_router(routes.probes_router, prefix="/probes")
 app.include_router(routes.cli_to_api_router)
