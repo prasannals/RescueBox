@@ -104,7 +104,7 @@ class AgeGenderDetector:
         return boxes, labels, probs
 
     def genderClassifier(self, orig_image):
-        image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB)
+        image = orig_image.copy()
         image = cv2.resize(image, (224, 224))
         image_mean = np.array([104, 117, 123])
         image = image - image_mean
@@ -118,7 +118,7 @@ class AgeGenderDetector:
         return gender
 
     def ageClassifier(self, orig_image):
-        image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB)
+        image = orig_image.copy()
         image = cv2.resize(image, (224, 224))
         image_mean = np.array([104, 117, 123])
         image = image - image_mean
