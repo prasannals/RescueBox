@@ -10,15 +10,25 @@ from pprint import pprint
 
 
 # scale current rectangle to box
-def scale(box):
+def scale(box, image_width=None, image_height=None):
     width = box[2] - box[0]
     height = box[3] - box[1]
     maximum = max(width, height)
     dx = int((maximum - width) / 2)
     dy = int((maximum - height) / 2)
 
-    bboxes = [box[0] - dx, box[1] - dy, box[2] + dx, box[3] + dy]
-    return bboxes
+    x1 = box[0] - dx
+    y1 = box[1] - dy
+    x2 = box[2] + dx
+    y2 = box[3] + dy
+
+    if image_width is not None and image_height is not None:
+        x1 = max(0, x1)
+        y1 = max(0, y1)
+        x2 = min(image_width, x2)
+        y2 = min(image_height, y2)
+
+    return [x1, y1, x2, y2]
 
 
 # crop image
@@ -124,10 +134,9 @@ class AgeGenderDetector:
     def predict_age_and_gender(self, image_path):
         orig_image = cv2.imread(image_path)
         boxes, labels, probs = self.faceDetector(orig_image)
-
         preds = []
         for i in range(boxes.shape[0]):
-            box = scale(boxes[i, :])
+            box = scale(boxes[i, :], orig_image.shape[1], orig_image.shape[0])
             cropped = cropImage(orig_image, box)
             gender = self.genderClassifier(cropped)
             age = self.ageClassifier(cropped)
