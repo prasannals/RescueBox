@@ -55,4 +55,4 @@ jobs:
           npm exec electron-builder -- --publish always --mac
           ls release/build
           IF NOT EXIST "release/build/RescueBox-Desktop-2.1.0.dmg" EXIT 1
-        shell: zsh
+        shell: sh
