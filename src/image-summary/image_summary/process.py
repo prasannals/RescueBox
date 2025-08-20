@@ -26,7 +26,8 @@ def process_images(model: str, input_dir: str, output_dir: str) -> Set[str]:
     processed_files: Set[str] = set()
     for image_path in iter_image_files(input_path):
         summary_text = describe_image(model, str(image_path))
-        out_file = output_path / (image_path.stem + ".txt")
+        # Include the original filename with extension to avoid collisions
+        out_file = output_path / (image_path.name + ".txt")
         out_file.write_text(summary_text, encoding="utf-8")
         processed_files.add(str(out_file))
 
