@@ -1,4 +1,5 @@
 from typing import Final
+import logging
 import ollama
 
 SUPPORTED_MODELS: Final[dict[str, dict[str, str]]] = {
@@ -36,9 +37,15 @@ def ensure_model_exists(model: str) -> None:
             f"Model '{model}' is not supported. Supported models are: {list(SUPPORTED_MODELS.keys())}"
         )
     try:
+        logging.getLogger(__name__).info(
+            f"ImageSummary Model: checking availability -> {model}"
+        )
         resp = ollama.list()
         models = [m.model for m in resp["models"]]
         if model not in models:
+            logging.getLogger(__name__).info(
+                f"ImageSummary Model: pulling model -> {model}"
+            )
             response = ollama.pull(model)
             if response.status != "success":
                 raise ValueError(f"Failed to pull model '{model}': {response}")

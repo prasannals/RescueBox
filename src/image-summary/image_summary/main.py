@@ -1,5 +1,6 @@
 from typing import TypedDict
 from pathlib import Path
+import logging
 import json
 import typer
 
@@ -18,6 +19,9 @@ from rb.api.models import (
 
 from .model import SUPPORTED_MODELS
 from .process import process_images
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 APP_NAME = "image_summary"
 
@@ -82,9 +86,15 @@ def summarize_images(
     output_dir = inputs["output_dir"].path
     model = parameters["model"]
 
+    logger.info(
+        f"ImageSummary API: received request | model={model} | input_dir={input_dir} | output_dir={output_dir}"
+    )
     processed_files = process_images(model, input_dir, output_dir)
 
     response = TextResponse(value=json.dumps(list(processed_files)))
+    logger.info(
+        f"ImageSummary API: response ready | files={len(processed_files)}"
+    )
     return ResponseBody(root=response)
 
 
