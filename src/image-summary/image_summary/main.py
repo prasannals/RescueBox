@@ -47,8 +47,11 @@ def task_schema() -> TaskSchema:
         label="Model to use for image description",
         subtitle="Model to use for image description",
         value=EnumParameterDescriptor(
-            enum_vals=[EnumVal(key=model, label=model) for model in SUPPORTED_MODELS],
-            default=SUPPORTED_MODELS[0],
+            enum_vals=[
+                EnumVal(key=model_id, label=model_info["display_name"])
+                for model_id, model_info in SUPPORTED_MODELS.items()
+            ],
+            default=list(SUPPORTED_MODELS.keys())[0],
         ),
     )
     return TaskSchema(inputs=[input_dir_schema, output_dir_schema], parameters=[parameter_schema])
@@ -60,7 +63,12 @@ server.add_app_metadata(
     name="Image Summary",
     author="UMass Rescue",
     version="1.0.0",
-    info="Describe images in a directory using an LLM.",
+    info=(
+        "This plugin lets you generate rich descriptions for every image in a folder. "
+        "For each image, it identifies the scene and setting, key objects and their attributes (colors, counts, positions), "
+        "people and actions (if present), visible text (quoted verbatim), and notable visual details like lighting and composition. "
+        "Input: a directory of images. Output: a matching directory of .txt files (one per image) containing the description."
+    ),
 )
 
 
