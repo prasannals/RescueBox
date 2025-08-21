@@ -92,9 +92,7 @@ def summarize_images(
     processed_files = process_images(model, input_dir, output_dir)
 
     response = TextResponse(value=json.dumps(list(processed_files)))
-    logger.info(
-        f"ImageSummary API: response ready | files={len(processed_files)}"
-    )
+    logger.info(f"ImageSummary API: response ready | files={len(processed_files)}")
     return ResponseBody(root=response)
 
 
