@@ -16,7 +16,12 @@ class TestImageSummary(RBAppTest):
             name="Image Summary",
             author="UMass Rescue",
             version="1.0.0",
-            info="Describe images in a directory using an LLM.",
+            info=(
+                "This plugin lets you generate rich descriptions for every image in a folder. "
+                "For each image, it identifies the scene and setting, key objects and their attributes (colors, counts, positions), "
+                "people and actions (if present), visible text (quoted verbatim), and notable visual details like lighting and composition. "
+                "Input: a directory of images. Output: a matching directory of .txt files (one per image) containing the description."
+            ),
             plugin_name=APP_NAME,
         )
 
