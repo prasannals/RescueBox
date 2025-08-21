@@ -61,5 +61,3 @@ def describe_image(model: str, image_path: str) -> str:
     if response and response.get("done"):
         return extract_response_after_think(response.get("response", "").strip())
     return str(response)
-
-

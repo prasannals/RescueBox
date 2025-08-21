@@ -54,7 +54,9 @@ def task_schema() -> TaskSchema:
             default=list(SUPPORTED_MODELS.keys())[0],
         ),
     )
-    return TaskSchema(inputs=[input_dir_schema, output_dir_schema], parameters=[parameter_schema])
+    return TaskSchema(
+        inputs=[input_dir_schema, output_dir_schema], parameters=[parameter_schema]
+    )
 
 
 server = MLService(APP_NAME)
@@ -107,8 +109,12 @@ def parameters_cli_parse(model: str) -> Parameters:
 server.add_ml_service(
     rule="/summarize-images",
     ml_function=summarize_images,
-    inputs_cli_parser=typer.Argument(parser=inputs_cli_parse, help="Input and output directory paths"),
-    parameters_cli_parser=typer.Argument(parser=parameters_cli_parse, help="Model to use for description"),
+    inputs_cli_parser=typer.Argument(
+        parser=inputs_cli_parse, help="Input and output directory paths"
+    ),
+    parameters_cli_parser=typer.Argument(
+        parser=parameters_cli_parse, help="Model to use for description"
+    ),
     short_title="Describe Images",
     order=0,
     task_schema_func=task_schema,
@@ -118,5 +124,3 @@ app = server.app
 
 if __name__ == "__main__":
     app()
-
-

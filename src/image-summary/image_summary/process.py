@@ -32,5 +32,3 @@ def process_images(model: str, input_dir: str, output_dir: str) -> Set[str]:
         processed_files.add(str(out_file))
 
     return processed_files
-
-
