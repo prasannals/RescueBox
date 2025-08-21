@@ -16,7 +16,12 @@ class TestImageSummary(RBAppTest):
             name="Image Summary",
             author="UMass Rescue",
             version="1.0.0",
-            info="Describe images in a directory using an LLM.",
+            info=(
+                "This plugin lets you generate rich descriptions for every image in a folder. "
+                "For each image, it identifies the scene and setting, key objects and their attributes (colors, counts, positions), "
+                "people and actions (if present), visible text (quoted verbatim), and notable visual details like lighting and composition. "
+                "Input: a directory of images. Output: a matching directory of .txt files (one per image) containing the description."
+            ),
             plugin_name=APP_NAME,
         )
 
@@ -41,14 +46,20 @@ class TestImageSummary(RBAppTest):
         input_str = f"{str(full_path)},{str(output_path)}"
         parameter_str = "gemma3:4b"
 
-        result = self.runner.invoke(self.cli_app, [summarize_api, input_str, parameter_str])
+        result = self.runner.invoke(
+            self.cli_app, [summarize_api, input_str, parameter_str]
+        )
         assert result.exit_code == 0, f"Error: {result.output}"
 
         input_files = [
-            f for f in full_path.glob("*") if f.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
+            f
+            for f in full_path.glob("*")
+            if f.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
         ]
         # Expected output keeps original filename (with extension) and then appends .txt
-        expected_files = {str(output_path / (file.name + ".txt")) for file in input_files}
+        expected_files = {
+            str(output_path / (file.name + ".txt")) for file in input_files
+        }
 
         output_files = list(output_path.glob("*.txt"))
         assert len(output_files) == len(expected_files)
@@ -76,7 +87,9 @@ class TestImageSummary(RBAppTest):
         assert response.status_code == 200
         body = response.json()
         input_files = [
-            f for f in full_path.glob("*") if f.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
+            f
+            for f in full_path.glob("*")
+            if f.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
         ]
         expected_files = [
             str(output_path / (str(file.name) + ".txt")) for file in input_files
@@ -98,5 +111,3 @@ class TestImageSummary(RBAppTest):
             self.cli_app, [summarize_api, input_str, parameter_str]
         )
         assert result.exit_code != 0
-
-
