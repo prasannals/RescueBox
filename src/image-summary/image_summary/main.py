@@ -18,7 +18,7 @@ from rb.api.models import (
 )
 
 from .model import SUPPORTED_MODELS
-from .process import process_images
+from .process import process_images, process_images_json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -65,7 +65,11 @@ def task_schema() -> TaskSchema:
 
 server = MLService(APP_NAME)
 app_info_md = (Path(__file__).parent / "app-info.md").read_text(encoding="utf-8")
-app_info_paragraph = app_info_md.strip().split("\n\n", 2)[1].strip() if "\n\n" in app_info_md else app_info_md.strip()
+app_info_paragraph = (
+    app_info_md.strip().split("\n\n", 2)[1].strip()
+    if "\n\n" in app_info_md
+    else app_info_md.strip()
+)
 
 server.add_app_metadata(
     plugin_name=APP_NAME,
@@ -126,6 +130,38 @@ server.add_ml_service(
     task_schema_func=task_schema,
 )
 
+
+def summarize_images_json(
+    inputs: Inputs,
+    parameters: Parameters,
+) -> ResponseBody:
+    input_dir = inputs["input_dir"].path
+    output_dir = inputs["output_dir"].path
+    model = parameters["model"]
+
+    logger.info(
+        f"ImageSummary JSON API: received request | model={model} | input_dir={input_dir} | output_dir={output_dir}"
+    )
+    processed_files = process_images_json(model, input_dir, output_dir)
+
+    response = TextResponse(value=json.dumps(list(processed_files)))
+    logger.info(f"ImageSummary JSON API: response ready | files={len(processed_files)}")
+    return ResponseBody(root=response)
+
+
+server.add_ml_service(
+    rule="/summarize-images-json",
+    ml_function=summarize_images_json,
+    inputs_cli_parser=typer.Argument(
+        parser=inputs_cli_parse, help="Input and output directory paths"
+    ),
+    parameters_cli_parser=typer.Argument(
+        parser=parameters_cli_parse, help="Model to use for description"
+    ),
+    short_title="Describe Images (JSON)",
+    order=1,
+    task_schema_func=task_schema,
+)
 app = server.app
 
 if __name__ == "__main__":
