@@ -64,17 +64,15 @@ def task_schema() -> TaskSchema:
 
 
 server = MLService(APP_NAME)
+app_info_md = (Path(__file__).parent / "app-info.md").read_text(encoding="utf-8")
+app_info_paragraph = app_info_md.strip().split("\n\n", 2)[1].strip() if "\n\n" in app_info_md else app_info_md.strip()
+
 server.add_app_metadata(
     plugin_name=APP_NAME,
     name="Image Summary",
     author="UMass Rescue",
     version="1.0.0",
-    info=(
-        "This plugin lets you generate rich descriptions for every image in a folder. "
-        "For each image, it identifies the scene and setting, key objects and their attributes (colors, counts, positions), "
-        "people and actions (if present), visible text (quoted verbatim), and notable visual details like lighting and composition. "
-        "Input: a directory of images. Output: a matching directory of .txt files (one per image) containing the description."
-    ),
+    info=app_info_paragraph,
 )
 
 
