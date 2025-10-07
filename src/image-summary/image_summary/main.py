@@ -162,6 +162,8 @@ server.add_ml_service(
     order=1,
     task_schema_func=task_schema,
 )
+
+
 app = server.app
 
 if __name__ == "__main__":
