@@ -42,6 +42,7 @@ For experienced developers, here’s the fast track to get up and running:
     ```
     The backend UI is available at http://localhost:8000.
 
+<<<<<<< HEAD
 ## Prerequisites
 
 Before you begin, please ensure you have the following software installed:
@@ -53,6 +54,14 @@ Before you begin, please ensure you have the following software installed:
   ```bash
   pip install gdown
   ```
+=======
+-----------------------
+Notes for Developers Only:
+
+**For Hackathon ideas** see [issues](https://github.com/UMass-Rescue/RescueBox/issues)
+
+Please refer to the [CONTRIBUTING](CONTRIBUTING.md) file for more information on how to contribute to this project.
+>>>>>>> upstream_main
 
 ## Step-by-Step Setup . [How To Video](https://drive.google.com/file/d/1q27_mH22k6PXDhHhPWR8KSby3HSlQ6uQ/view?usp=sharing)
 
